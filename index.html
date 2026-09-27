@@ -3,78 +3,80 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OBi'SCORES - Live Football & Streams</title>
+  <title>Obi'score - Live Football</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: #0b0e14; color: #e2e8f0; font-size: 13px; padding-bottom: 70px; }
+    body { background: #ffffff; color: #1e293b; font-size: 13px; padding-bottom: 70px; }
     
-    header { background: #111827; padding: 12px 16px; border-bottom: 1px solid #1f2937; display: flex; justify-content: space-between; align-items: center; }
-    .brand-title { color: #22c55e; font-size: 18px; font-weight: bold; }
-    .sub-brand { color: #9ca3af; font-size: 11px; }
+    header {
+      background: #ffffff;
+      padding: 16px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    
+    .site-logo {
+      max-width: 220px;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
 
-    .ad-slot { margin: 10px auto; text-align: center; min-height: 90px; }
-    .ad-label { font-size: 10px; color: #6b7280; margin-bottom: 4px; }
+    .ad-slot { margin: 12px auto; text-align: center; min-height: 90px; }
+    .ad-label { font-size: 10px; color: #94a3b8; margin-bottom: 4px; }
 
     .league-header {
-      background: #1e293b;
-      color: #f8fafc;
-      font-weight: bold;
+      background: #f1f5f9;
+      color: #0f172a;
+      font-weight: 700;
       font-size: 12px;
-      padding: 6px 12px;
+      padding: 8px 12px;
       display: flex;
       align-items: center;
       gap: 8px;
-      border-left: 3px solid #22c55e;
-      margin-top: 8px;
+      border-left: 4px solid #1e40af;
+      margin-top: 10px;
+      border-bottom: 1px solid #e2e8f0;
     }
     .flag-icon { width: 18px; height: 13px; object-fit: cover; border-radius: 2px; }
 
     .match-row {
       display: flex;
-      padding: 8px 12px;
-      border-bottom: 1px solid #1f2937;
+      padding: 12px;
+      border-bottom: 1px solid #f1f5f9;
       align-items: center;
-      background: #0b0e14;
+      background: #ffffff;
     }
-    .match-time { width: 50px; color: #9ca3af; font-size: 11px; }
-    .match-time.live { color: #ef4444; font-weight: bold; }
-    .match-teams { flex: 1; color: #f3f4f6; font-size: 13px; }
+    .match-time { width: 50px; color: #64748b; font-size: 11px; font-weight: 600; }
+    .match-time.live { color: #dc2626; font-weight: bold; }
+    .match-teams { flex: 1; color: #0f172a; font-size: 13px; font-weight: 500; }
     .match-score {
       font-weight: bold;
-      color: #22c55e;
-      background: #111827;
-      padding: 3px 8px;
+      color: #1e40af;
+      background: #eff6ff;
+      padding: 4px 10px;
       border-radius: 4px;
       min-width: 45px;
       text-align: center;
     }
 
-    .stream-container {
-      width: 100%;
-      aspect-ratio: 16/9;
-      background: #000;
-      margin-bottom: 15px;
-    }
-    iframe { width: 100%; height: 100%; border: none; }
-
     .sticky-bottom-ad {
       position: fixed; bottom: 0; left: 0; right: 0;
-      background: #111827; border-top: 1px solid #1f2937;
+      background: #ffffff; border-top: 1px solid #e2e8f0;
       text-align: center; z-index: 9999; min-height: 50px;
       display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
     }
   </style>
 </head>
 <body>
 
   <header>
-    <div>
-      <div class="brand-title">OBi'SCORES</div>
-      <div class="sub-brand">Live Coverage & Streams</div>
-    </div>
+    <img src="1790522014680_2.jpg" alt="Obi'score" class="site-logo">
   </header>
 
-  <!-- TOP ADSTERRA BANNER SLOT -->
+  <!-- ADSTERRA TOP BANNER -->
   <div class="ad-slot">
     <div class="ad-label">Advertisement</div>
     <script>
@@ -90,11 +92,12 @@
   </div>
 
   <div id="matches-container">
-    <div style="padding: 20px; text-align: center; color: #9ca3af;">Loading live feed...</div>
+    <div style="padding: 20px; text-align: center; color: #64748b;">Loading live fixtures...</div>
   </div>
 
+  <!-- STICKY BOTTOM AD -->
   <div class="sticky-bottom-ad">
-    <span style="color: #6b7280; font-size: 11px;">Ad Space</span>
+    <span style="color: #94a3b8; font-size: 11px;">Ad Space</span>
   </div>
 
   <script>
@@ -113,8 +116,7 @@
       } catch (e) {}
     }
 
-    function getFlag(title, countryCode) {
-      if (countryCode && countryCode.length === 2) return `https://flagcdn.com/24x18/${countryCode.toLowerCase()}.png`;
+    function getFlag(title) {
       if (!title) return 'https://flagcdn.com/24x18/un.png';
       const clean = title.toLowerCase();
       for (const [name, code] of Object.entries(isoMap)) {
@@ -123,55 +125,40 @@
       return 'https://flagcdn.com/24x18/un.png';
     }
 
-    function renderTwitchStream() {
-      return `
-        <div class="league-header">
-          <img src="https://flagcdn.com/24x18/un.png" class="flag-icon" alt="flag">
-          <span>LIVE BROADCAST: EA Sports FC / Football Stream</span>
-        </div>
-        <div class="stream-container">
-          <iframe 
-            src="https://player.twitch.tv/?channel=easportsfc&parent=obiscores.vercel.app&autoplay=true&muted=true" 
-            allowfullscreen>
-          </iframe>
-        </div>
-      `;
-    }
-
     async function loadScores() {
       const container = document.getElementById('matches-container');
       try {
         const res = await fetch('/api/scores');
-        const rawData = await res.json();
+        const data = await res.json();
 
-        let list = [];
-        if (Array.isArray(rawData)) list = rawData;
-        else if (rawData?.response) {
-          if (Array.isArray(rawData.response)) list = rawData.response;
-          else if (typeof rawData.response === 'object') {
-            Object.values(rawData.response).forEach(val => {
-              if (Array.isArray(val)) list.push(...val);
+        let matches = [];
+        if (data.response) {
+          if (Array.isArray(data.response)) {
+            matches = data.response;
+          } else if (data.response.matches) {
+            matches = data.response.matches;
+          } else if (typeof data.response === 'object') {
+            Object.values(data.response).forEach(val => {
+              if (Array.isArray(val)) matches.push(...val);
             });
           }
         }
 
-        // If the API failed, hit limits, or returned zero matches, load the Twitch Live Broadcast stream instead!
-        if (rawData.useTwitchFallback || list.length === 0) {
-          container.innerHTML = renderTwitchStream() + `<div style="padding: 15px; text-align: center; color: #9ca3af;">Live Scores updating shortly...</div>`;
+        if (matches.length === 0) {
+          container.innerHTML = `<div style="padding: 20px; text-align: center; color: #64748b;">No active fixtures available right now.</div>`;
           return;
         }
 
         const groups = {};
-        list.forEach(m => {
-          const leagueName = m.league?.name || m.tournament?.name || m.country || "FOOTBALL FIXTURES";
-          const cc = m.league?.countryCode || m.countryCode || "";
-          if (!groups[leagueName]) groups[leagueName] = { matches: [], cc };
-          groups[leagueName].matches.push(m);
+        matches.forEach(m => {
+          const leagueName = m.league?.name || m.tournament?.name || m.country || "GLOBAL FIXTURES";
+          if (!groups[leagueName]) groups[leagueName] = [];
+          groups[leagueName].push(m);
         });
 
-        let html = renderTwitchStream(); // Displays Twitch player at top for live match streams
-        for (const [title, group] of Object.entries(groups)) {
-          const flagUrl = getFlag(title, group.cc);
+        let html = '';
+        for (const [title, leagueMatches] of Object.entries(groups)) {
+          const flagUrl = getFlag(title);
           html += `
             <div class="league-header">
               <img src="${flagUrl}" class="flag-icon" alt="flag" onerror="this.src='https://flagcdn.com/24x18/un.png'">
@@ -179,7 +166,7 @@
             </div>
           `;
 
-          group.matches.forEach(m => {
+          leagueMatches.forEach(m => {
             const home = m.home?.name || m.homeTeam?.name || 'Home';
             const away = m.away?.name || m.awayTeam?.name || 'Away';
             const homeScore = m.home?.score ?? m.scores?.home ?? '-';
@@ -199,7 +186,7 @@
 
         container.innerHTML = html;
       } catch (err) {
-        container.innerHTML = renderTwitchStream();
+        container.innerHTML = `<div style="padding: 20px; text-align: center; color: #dc2626;">Connecting to match feed...</div>`;
       }
     }
 
