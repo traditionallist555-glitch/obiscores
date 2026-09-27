@@ -25,9 +25,12 @@
       align-items: center; background: #ffffff; cursor: pointer; transition: background 0.15s ease;
     }
     .match-row:hover { background: #f8fafc; }
-    .match-time { width: 55px; color: #64748b; font-size: 11px; font-weight: 600; }
+    .match-time { width: 65px; color: #64748b; font-size: 11px; font-weight: 600; }
     .match-time.live { color: #dc2626; font-weight: bold; }
-    .match-teams { flex: 1; color: #0f172a; font-size: 13px; font-weight: 500; }
+    .match-teams { flex: 1; color: #0f172a; font-size: 13px; font-weight: 500; display: flex; flex-direction: column; gap: 4px; }
+    .team-line { display: flex; align-items: center; gap: 6px; }
+    .team-flag { width: 16px; height: 16px; object-fit: contain; }
+    
     .match-score {
       font-weight: bold; color: #1e40af; background: #eff6ff;
       padding: 4px 10px; border-radius: 4px; min-width: 45px; text-align: center;
@@ -95,9 +98,9 @@
         <div id="modal-status" style="color: #dc2626; font-weight: bold; font-size: 11px;">STATUS</div>
       </div>
       <div class="modal-body">
-        <div class="detail-row"><span>Category / Country</span><span id="modal-category" style="font-weight:600;">-</span></div>
+        <div class="detail-row"><span>Venue</span><span id="modal-venue" style="font-weight:600;">-</span></div>
         <div class="detail-row"><span>Kickoff Time</span><span id="modal-kickoff" style="font-weight:600;">-</span></div>
-        <div class="detail-row"><span>Status Description</span><span id="modal-desc" style="font-weight:600;">-</span></div>
+        <div class="detail-row"><span>Clock Status</span><span id="modal-clock" style="font-weight:600;">-</span></div>
       </div>
     </div>
   </div>
@@ -125,7 +128,7 @@
         // Group fixtures by League Name
         const groups = {};
         data.events.forEach((item, idx) => {
-          const compName = `${item.tournament?.category?.name || 'GLOBAL'}: ${item.tournament?.name || 'Fixtures'}`;
+          const compName = item.league?.name || item.season?.slug || "Global League";
           if (!groups[compName]) groups[compName] = [];
           groups[compName].push({ ...item, eventIndex: idx });
         });
@@ -139,31 +142,39 @@
           `;
 
           matches.forEach(m => {
-            const home = m.homeTeam?.name || 'Home';
-            const away = m.awayTeam?.name || 'Away';
+            const competition = m.competitions?.[0];
+            const competitors = competition?.competitors || [];
             
-            const homeScore = m.homeScore?.current ?? '-';
-            const awayScore = m.awayScore?.current ?? '-';
-            
-            const statusCode = m.status?.type || '';
-            const statusDesc = m.status?.description || '';
-            let displayTime = '';
-            let isLive = false;
+            const homeTeam = competitors.find(c => c.homeAway === 'home') || competitors[0];
+            const awayTeam = competitors.find(c => c.homeAway === 'away') || competitors[1];
 
-            if (statusCode === 'inprogress') {
-              displayTime = statusDesc || 'LIVE';
-              isLive = true;
-            } else if (statusCode === 'finished') {
-              displayTime = 'FT';
-            } else {
-              const date = new Date(m.startTimestamp * 1000);
-              displayTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const homeName = homeTeam?.team?.shortDisplayName || homeTeam?.team?.name || 'Home';
+            const awayName = awayTeam?.team?.shortDisplayName || awayTeam?.team?.name || 'Away';
+
+            const homeLogo = homeTeam?.team?.logo || '';
+            const awayLogo = awayTeam?.team?.logo || '';
+
+            const homeScore = homeTeam?.score ?? '-';
+            const awayScore = awayTeam?.score ?? '-';
+
+            const statusState = m.status?.type?.state;
+            const statusDetail = m.status?.type?.shortDetail || m.status?.type?.description || '';
+            
+            let isLive = statusState === 'in';
+            let displayTime = statusDetail;
+
+            if (statusState === 'pre') {
+              const kickoff = new Date(m.date);
+              displayTime = kickoff.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             }
 
             html += `
               <div class="match-row" onclick="openMatchDetails(${m.eventIndex})">
                 <div class="match-time ${isLive ? 'live' : ''}">${displayTime}</div>
-                <div class="match-teams">${home} vs ${away}</div>
+                <div class="match-teams">
+                  <div class="team-line">${homeLogo ? `<img src="${homeLogo}" class="team-flag">` : ''} <span>${homeName}</span></div>
+                  <div class="team-line">${awayLogo ? `<img src="${awayLogo}" class="team-flag">` : ''} <span>${awayName}</span></div>
+                </div>
                 <div class="match-score ${isLive ? 'live' : ''}">${homeScore} - ${awayScore}</div>
               </div>
             `;
@@ -172,7 +183,7 @@
 
         container.innerHTML = html;
       } catch (err) {
-        container.innerHTML = `<div style="padding: 20px; text-align: center; color: #dc2626;">Loading score feed...</div>`;
+        container.innerHTML = `<div style="padding: 20px; text-align: center; color: #dc2626;">Failed to load live match feed.</div>`;
       }
     }
 
@@ -180,25 +191,27 @@
       const item = globalEvents[index];
       if (!item) return;
 
-      document.getElementById('modal-comp').innerText = item.tournament?.name || 'Match Overview';
-      document.getElementById('modal-teams').innerText = `${item.homeTeam?.name} vs ${item.awayTeam?.name}`;
+      const comp = item.competitions?.[0];
+      const competitors = comp?.competitors || [];
+      const homeTeam = competitors.find(c => c.homeAway === 'home') || competitors[0];
+      const awayTeam = competitors.find(c => c.homeAway === 'away') || competitors[1];
+
+      document.getElementById('modal-comp').innerText = item.league?.name || 'Match Overview';
+      document.getElementById('modal-teams').innerText = `${homeTeam?.team?.name} vs ${awayTeam?.team?.name}`;
       
-      const hScore = item.homeScore?.current ?? '0';
-      const aScore = item.awayScore?.current ?? '0';
-      document.getElementById('modal-score').innerText = `${hScore} - ${aScore}`;
+      document.getElementById('modal-score').innerText = `${homeTeam?.score ?? '0'} - ${awayTeam?.score ?? '0'}`;
+      document.getElementById('modal-status').innerText = item.status?.type?.description || 'N/A';
       
-      document.getElementById('modal-status').innerText = item.status?.description || item.status?.type || 'N/A';
-      document.getElementById('modal-category').innerText = item.tournament?.category?.name || 'Global';
+      document.getElementById('modal-venue').innerText = comp?.venue?.fullName || 'N/A';
       
-      if (item.startTimestamp) {
-        const d = new Date(item.startTimestamp * 1000);
+      if (item.date) {
+        const d = new Date(item.date);
         document.getElementById('modal-kickoff').innerText = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       } else {
         document.getElementById('modal-kickoff').innerText = 'N/A';
       }
 
-      document.getElementById('modal-desc').innerText = item.status?.type === 'inprogress' ? 'Match Currently In Progress' : (item.status?.type === 'finished' ? 'Match Finished' : 'Scheduled');
-
+      document.getElementById('modal-clock').innerText = item.status?.type?.shortDetail || 'N/A';
       document.getElementById('match-modal').style.display = 'flex';
     }
 
