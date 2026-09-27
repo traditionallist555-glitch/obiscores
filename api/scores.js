@@ -6,7 +6,6 @@ export default async function handler(req, res) {
   const API_HOST = 'free-api-live-football-data.p.rapidapi.com';
 
   try {
-    // Primary attempt: Fetch live matches
     const response = await fetch(`https://${API_HOST}/football-get-all-matches-by-date?date=${new Date().toISOString().split('T')[0]}`, {
       method: 'GET',
       headers: {
@@ -15,13 +14,9 @@ export default async function handler(req, res) {
       }
     });
 
-    if (!response.ok) {
-      throw new Error(`API returned status ${response.status}`);
-    }
-
     const data = await response.json();
     return res.status(200).json(data);
   } catch (err) {
-    return res.status(200).json({ status: 'error', message: err.message, response: [] });
+    return res.status(500).json({ error: err.message });
   }
 }
