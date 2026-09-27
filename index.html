@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Obi'score - Live Football</title>
+  <title>Obi'score - Live Football & Fixtures</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background: #ffffff; color: #1e293b; font-size: 13px; padding-bottom: 70px; }
@@ -13,6 +13,19 @@
 
     .ad-slot { margin: 12px auto; text-align: center; min-height: 90px; }
     .ad-label { font-size: 10px; color: #94a3b8; margin-bottom: 4px; }
+
+    /* DATE NAVIGATION BAR */
+    .date-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      background: #0f172a; color: #ffffff; padding: 8px 12px; margin-top: 4px;
+    }
+    .date-btn {
+      background: #1e293b; color: #ffffff; border: 1px solid #334155; padding: 6px 10px;
+      border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.15s;
+    }
+    .date-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .date-btn:hover:not(:disabled) { background: #1e40af; }
+    .current-date-display { font-weight: bold; font-size: 12px; color: #38bdf8; text-transform: uppercase; }
 
     .league-header {
       background: #f1f5f9; color: #0f172a; font-weight: 700; font-size: 12px;
@@ -37,7 +50,7 @@
     }
     .match-score.live { color: #dc2626; background: #fef2f2; }
 
-    /* INTERACTIVE TABBED MODAL */
+    /* TABBED POPUP MODAL */
     .modal-overlay {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(15, 23, 42, 0.6); display: none; align-items: center; justify-content: center; z-index: 10000;
@@ -54,7 +67,6 @@
     .modal-title { font-size: 11px; font-weight: bold; color: #1e40af; text-transform: uppercase; }
     .modal-score { font-size: 26px; font-weight: bold; margin: 4px 0; color: #0f172a; }
 
-    /* MODAL TABS */
     .tab-bar { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 12px; flex-shrink: 0; overflow-x: auto; }
     .tab-btn {
       flex: 1; min-width: 70px; padding: 8px 0; text-align: center; background: none; border: none; font-size: 11px;
@@ -68,25 +80,21 @@
 
     .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0; }
 
-    /* STATS BAR UI */
     .stat-box { margin-bottom: 12px; }
     .stat-title { display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; margin-bottom: 4px; }
     .stat-bar-bg { background: #e2e8f0; height: 6px; border-radius: 3px; display: flex; overflow: hidden; }
     .stat-bar-fill { background: #1e40af; height: 100%; }
 
-    /* EXPECTED WIN RATIO UI */
     .prob-container { display: flex; border-radius: 6px; overflow: hidden; height: 24px; font-weight: bold; font-size: 11px; color: #fff; margin: 10px 0; }
     .prob-home { background: #1e40af; display: flex; align-items: center; justify-content: center; }
     .prob-draw { background: #64748b; display: flex; align-items: center; justify-content: center; }
     .prob-away { background: #dc2626; display: flex; align-items: center; justify-content: center; }
 
-    /* LINEUP GRID */
     .lineup-container { display: flex; gap: 12px; }
     .lineup-col { flex: 1; }
     .lineup-team-title { font-weight: bold; color: #0f172a; margin-bottom: 6px; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
     .player-row { padding: 4px 0; font-size: 11px; border-bottom: 1px solid #f1f5f9; display: flex; gap: 6px; }
 
-    /* EVENTS TIMELINE */
     .event-item { display: flex; gap: 8px; padding: 6px 0; border-bottom: 1px solid #f1f5f9; align-items: center; }
     .event-time { font-weight: bold; color: #dc2626; width: 30px; text-align: right; }
 
@@ -117,11 +125,18 @@
     <script src="https://www.highrevenueformat.com/3c42401d24526066c62f017385299762/invoke.js"></script>
   </div>
 
-  <div id="matches-container">
-    <div style="padding: 20px; text-align: center; color: #64748b;">Loading live matches...</div>
+  <!-- DATE NAVIGATION CONTROL -->
+  <div class="date-nav">
+    <button id="prev-day-btn" class="date-btn" onclick="changeDate(-1)">&laquo; Prev</button>
+    <div id="date-label" class="current-date-display">Today</div>
+    <button id="next-day-btn" class="date-btn" onclick="changeDate(1)">Next &raquo;</button>
   </div>
 
-  <!-- INTERACTIVE TABBED POPUP MODAL -->
+  <div id="matches-container">
+    <div style="padding: 20px; text-align: center; color: #64748b;">Loading matches...</div>
+  </div>
+
+  <!-- INTERACTIVE POPUP MODAL -->
   <div id="match-modal" class="modal-overlay" onclick="closeModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
       <button class="modal-close" onclick="closeModal(null)">&times;</button>
@@ -133,7 +148,6 @@
         <div id="modal-status" style="color: #dc2626; font-weight: bold; font-size: 11px;">STATUS</div>
       </div>
 
-      <!-- TABS SELECTOR -->
       <div class="tab-bar">
         <button class="tab-btn active" onclick="switchTab('tab-overview', this)">Overview</button>
         <button class="tab-btn" onclick="switchTab('tab-stats', this)">Stats</button>
@@ -142,7 +156,6 @@
       </div>
 
       <div class="modal-body-scroll">
-        <!-- TAB 1: OVERVIEW -->
         <div id="tab-overview" class="tab-content active">
           <div class="detail-row"><span>Venue</span><span id="modal-venue" style="font-weight:600;">-</span></div>
           <div class="detail-row"><span>Kickoff Time</span><span id="modal-kickoff" style="font-weight:600;">-</span></div>
@@ -151,12 +164,10 @@
           <div id="overview-events" style="margin-top: 6px;">Loading match events...</div>
         </div>
 
-        <!-- TAB 2: STATISTICS -->
         <div id="tab-stats" class="tab-content">
           <div id="stats-container">Select a match to view stats...</div>
         </div>
 
-        <!-- TAB 3: H2H & EXPECTED WIN % -->
         <div id="tab-h2h" class="tab-content">
           <div style="font-weight: bold; margin-bottom: 6px;">Expected Win Ratio</div>
           <div id="win-ratio-container">Loading predictions...</div>
@@ -165,7 +176,6 @@
           <div id="h2h-container">Loading H2H records...</div>
         </div>
 
-        <!-- TAB 4: LINEUPS -->
         <div id="tab-lineups" class="tab-content">
           <div id="lineups-container">Select a match to view lineups...</div>
         </div>
@@ -179,15 +189,56 @@
 
   <script>
     let globalEvents = [];
+    let dayOffset = 0; // 0 = Today, -1 to -7 = Past days, +1 to +7 = Future days
+
+    function formatDateForAPI(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}${m}${d}`;
+    }
+
+    function updateDateUI() {
+      const targetDate = new Date();
+      targetDate.setDate(targetDate.getDate() + dayOffset);
+
+      const label = document.getElementById('date-label');
+      if (dayOffset === 0) {
+        label.innerText = 'Today';
+      } else if (dayOffset === -1) {
+        label.innerText = 'Yesterday';
+      } else if (dayOffset === 1) {
+        label.innerText = 'Tomorrow';
+      } else {
+        label.innerText = targetDate.toLocaleDateString([], { month: 'short', day: 'numeric', weekday: 'short' });
+      }
+
+      // Enforce the 7-day past / 7-day future maximum limit
+      document.getElementById('prev-day-btn').disabled = (dayOffset <= -7);
+      document.getElementById('next-day-btn').disabled = (dayOffset >= 7);
+    }
+
+    function changeDate(delta) {
+      if ((dayOffset + delta < -7) || (dayOffset + delta > 7)) return;
+      dayOffset += delta;
+      updateDateUI();
+      loadScores();
+    }
 
     async function loadScores() {
       const container = document.getElementById('matches-container');
+      container.innerHTML = `<div style="padding: 20px; text-align: center; color: #64748b;">Loading fixtures...</div>`;
+
+      const targetDate = new Date();
+      targetDate.setDate(targetDate.getDate() + dayOffset);
+      const apiDateStr = formatDateForAPI(targetDate);
+
       try {
-        const res = await fetch('/api/scores');
+        const res = await fetch(`/api/scores?date=${apiDateStr}`);
         const data = await res.json();
 
         if (!data.events || data.events.length === 0) {
-          container.innerHTML = `<div style="padding: 20px; text-align: center; color: #64748b;">No active fixtures available right now.</div>`;
+          container.innerHTML = `<div style="padding: 20px; text-align: center; color: #64748b;">No fixtures available for this date.</div>`;
           return;
         }
 
@@ -243,7 +294,7 @@
 
         container.innerHTML = html;
       } catch (err) {
-        container.innerHTML = `<div style="padding: 20px; text-align: center; color: #dc2626;">Failed to load live match feed.</div>`;
+        container.innerHTML = `<div style="padding: 20px; text-align: center; color: #dc2626;">Failed to load match feed.</div>`;
       }
     }
 
@@ -287,7 +338,6 @@
     }
 
     function renderDeepDetails(data, homeName, awayName) {
-      // 1. RENDER KEY EVENTS & CARDS
       const keyEvents = data.header?.competitions?.[0]?.details || data.keyEvents || [];
       if (keyEvents.length > 0) {
         let eventsHtml = '';
@@ -304,7 +354,6 @@
         document.getElementById('overview-events').innerHTML = `No goals or cards logged yet.`;
       }
 
-      // 2. RENDER STATS & ESTIMATED xG
       const boxscore = data.boxscore;
       if (boxscore && boxscore.teams) {
         const homeStats = boxscore.teams[0]?.statistics || [];
@@ -334,7 +383,6 @@
         document.getElementById('stats-container').innerHTML = statsHtml || 'Stats unavailable.';
       }
 
-      // 3. EXPECTED WIN RATIO & H2H
       const ratio = data.expectedWinRatio || { homeWin: 40, draw: 30, awayWin: 30 };
       document.getElementById('win-ratio-container').innerHTML = `
         <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:bold; margin-bottom:4px;">
@@ -365,7 +413,6 @@
         document.getElementById('h2h-container').innerHTML = `First match / No recent H2H records found.`;
       }
 
-      // 4. LINEUPS
       const rosters = boxscore?.players || [];
       if (rosters.length >= 2) {
         let lineupsHtml = '<div class="lineup-container">';
@@ -403,6 +450,7 @@
       }
     }
 
+    updateDateUI();
     loadScores();
     setInterval(loadScores, 60000);
   </script>
