@@ -1,60 +1,61 @@
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Cache-Control', 's-maxage=30, stale-while-revalidate=15');
-
-  const { id } = req.query;
-
-  if (!id) {
-    return res.status(400).json({ error: 'Missing match ID parameter' });
-  }
+  res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=30');
 
   try {
-    const targetUrl = `https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary?event=${id}`;
+    // Helper to format Date objects into YYYYMMDD string
+    const formatDate = (d) => {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}${m}${day}`;
+    };
 
-    const response = await fetch(targetUrl, {
-      method: 'GET',
-      headers: { 'Accept': 'application/json' }
+    // Use requested date query or default to today's date
+    let targetDateStr = req.query.date;
+    if (!targetDateStr) {
+      targetDateStr = formatDate(new Date());
+    }
+
+    // Key worldwide league codes to query concurrently
+    const leagues = [
+      'all',
+      'eng.1', 'esp.1', 'ita.1', 'ger.1', 'fra.1',
+      'uefa.champions', 'uefa.europa', 'uefa.ecl',
+      'usa.1', 'arg.1', 'bra.1', 'col.1', 'mex.1',
+      'caf.nations', 'caf.champions', 'afr.1',
+      'afc.champions', 'saudi.1'
+    ];
+
+    // Fetch specified date endpoints in parallel across leagues
+    const requests = leagues.map(league =>
+      fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${league}/scoreboard?dates=${targetDateStr}`)
+        .then(r => r.ok ? r.json() : { events: [] })
+        .catch(() => ({ events: [] }))
+    );
+
+    const results = await Promise.all(requests);
+
+    // Deduplicate matches using event IDs
+    const eventMap = new Map();
+
+    results.forEach(data => {
+      if (data.events && Array.isArray(data.events)) {
+        data.events.forEach(event => {
+          if (!eventMap.has(event.id)) {
+            eventMap.set(event.id, event);
+          }
+        });
+      }
     });
 
-    if (!response.ok) {
-      return res.status(response.status).json({ error: `API status: ${response.status}` });
-    }
+    const combinedEvents = Array.from(eventMap.values());
 
-    const data = await response.json();
-
-    // Extract or Calculate Expected Win Probability / Odds
-    let winProb = { homeWin: 33, draw: 34, awayWin: 33 };
-
-    if (data.predictor) {
-      winProb.homeWin = Math.round(data.predictor.homeChance * 100) || 33;
-      winProb.awayWin = Math.round(data.predictor.awayChance * 100) || 33;
-      winProb.draw = 100 - (winProb.homeWin + winProb.awayWin);
-    } else if (data.pickcenter && data.pickcenter.length > 0) {
-      const odds = data.pickcenter[0];
-      if (odds.homeTeamOdds && odds.awayTeamOdds) {
-        winProb.homeWin = odds.homeTeamOdds.winPercentage || 40;
-        winProb.awayWin = odds.awayTeamOdds.winPercentage || 35;
-        winProb.draw = 100 - (winProb.homeWin + winProb.awayWin);
-      }
-    } else {
-      // Smart Fallback Ratio based on standings/records
-      const competitors = data.header?.competitions?.[0]?.competitors || [];
-      const homeRecord = competitors.find(c => c.homeAway === 'home')?.record?.[0]?.summary || '';
-      const awayRecord = competitors.find(c => c.homeAway === 'away')?.record?.[0]?.summary || '';
-
-      if (homeRecord && awayRecord) {
-        winProb.homeWin = 45; // Default favor to home team
-        winProb.draw = 25;
-        winProb.awayWin = 30;
-      }
-    }
-
-    // Include processed metrics in the response
-    data.expectedWinRatio = winProb;
-
-    return res.status(200).json(data);
+    return res.status(200).json({ 
+      selectedDate: targetDateStr,
+      events: combinedEvents 
+    });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
-        }
-    
+      }
