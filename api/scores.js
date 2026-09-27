@@ -6,10 +6,9 @@ export default async function handler(req, res) {
   const API_HOST = 'free-api-live-football-data.p.rapidapi.com';
 
   try {
-    // Get today's date in YYYY-MM-DD format
+    // Generates YYYY-MM-DD format dynamically
     const today = new Date().toISOString().split('T')[0];
 
-    // Request match schedules for today
     const response = await fetch(`https://${API_HOST}/football-get-all-matches-by-date?date=${today}`, {
       method: 'GET',
       headers: {
