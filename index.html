@@ -3,219 +3,68 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FlashScore Mobile - OBi'SCORES</title>
+  <title>OBi'SCORES - Live Football</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: Arial, Helvetica, sans-serif;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: #0b0e14; color: #e2e8f0; font-size: 13px; padding-bottom: 70px; }
+    
+    header { background: #111827; padding: 12px 16px; border-bottom: 1px solid #1f2937; }
+    .brand-title { color: #22c55e; font-size: 18px; font-weight: bold; }
+    .sub-brand { color: #9ca3af; font-size: 11px; }
 
-    body {
-      background-color: #ffffff;
-      color: #000000;
-      font-size: 13px;
-      padding-bottom: 60px;
-    }
+    .ad-slot { margin: 10px auto; text-align: center; min-height: 90px; }
+    .ad-label { font-size: 10px; color: #6b7280; margin-bottom: 4px; }
 
-    /* FlashScore Header */
-    header {
-      background-color: #001e28;
-      padding: 10px 12px;
+    .league-header {
+      background: #1e293b;
+      color: #f8fafc;
+      font-weight: bold;
+      font-size: 12px;
+      padding: 6px 12px;
       display: flex;
       align-items: center;
       gap: 8px;
+      border-left: 3px solid #22c55e;
+      margin-top: 8px;
     }
+    .flag-icon { width: 18px; height: 13px; object-fit: cover; border-radius: 2px; }
 
-    .brand-title {
-      color: #ffffff;
-      font-size: 18px;
-      font-weight: bold;
-      letter-spacing: 0.5px;
-    }
-
-    /* Sub Navigation Links */
-    .nav-bar {
-      border-bottom: 1px solid #ccc;
-      padding: 6px 10px;
-      font-size: 12px;
-      color: #333;
-    }
-
-    .nav-bar a {
-      color: #000;
-      text-decoration: none;
-    }
-
-    .nav-bar a.active {
-      color: #b00000;
-      font-weight: bold;
-    }
-
-    .nav-bar span.sep {
-      color: #888;
-      margin: 0 3px;
-    }
-
-    .refresh-btn {
-      color: #003399;
-      font-size: 11px;
-      font-weight: bold;
-      padding: 6px 10px;
-      display: inline-block;
-      text-decoration: none;
-      cursor: pointer;
-    }
-
-    .category-banner {
-      background-color: #006600;
-      color: #ffffff;
-      font-weight: bold;
-      padding: 5px 10px;
-      font-size: 12px;
-    }
-
-    /* Ad Container */
-    .ad-wrapper {
-      padding: 8px 10px;
-      text-align: center;
-    }
-
-    .ad-label {
-      font-size: 11px;
-      color: #666;
-      margin-bottom: 4px;
-      text-align: left;
-    }
-
-    /* League Header */
-    .league-header {
-      background-color: #000000;
-      color: #ffffff;
-      font-weight: bold;
-      font-size: 12px;
-      padding: 5px 10px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 5px;
-    }
-
-    .league-title-group {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .flag-icon {
-      width: 16px;
-      height: 12px;
-      object-fit: cover;
-      border-radius: 1px;
-    }
-
-    .league-header a {
-      color: #ffffff;
-      font-size: 11px;
-      font-weight: normal;
-    }
-
-    /* Match Row */
     .match-row {
       display: flex;
-      padding: 4px 10px;
-      border-bottom: 1px dotted #e0e0e0;
+      padding: 8px 12px;
+      border-bottom: 1px solid #1f2937;
       align-items: center;
-      font-size: 12px;
-      line-height: 18px;
+      background: #0b0e14;
     }
-
-    .match-time {
-      width: 42px;
-      color: #666;
-      font-size: 11px;
-    }
-
-    .match-time.live {
-      color: #b00000;
-      font-weight: bold;
-    }
-
-    .match-teams {
-      flex: 1;
-      color: #222;
-    }
-
+    .match-time { width: 50px; color: #9ca3af; font-size: 11px; }
+    .match-time.live { color: #ef4444; font-weight: bold; }
+    .match-teams { flex: 1; color: #f3f4f6; font-size: 13px; }
     .match-score {
       font-weight: bold;
-      color: #003399;
-      text-decoration: underline;
-    }
-
-    .match-score.live {
-      color: #b00000;
-    }
-
-    /* Sticky Bottom Ad Space */
-    .sticky-bottom-ad {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #f8f9fa;
-      border-top: 1px solid #ccc;
+      color: #22c55e;
+      background: #111827;
+      padding: 3px 8px;
+      border-radius: 4px;
+      min-width: 45px;
       text-align: center;
-      z-index: 9999;
-      min-height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    }
+
+    .sticky-bottom-ad {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #111827; border-top: 1px solid #1f2937;
+      text-align: center; z-index: 9999; min-height: 50px;
+      display: flex; align-items: center; justify-content: center;
     }
   </style>
 </head>
 <body>
 
-  <!-- HEADER -->
   <header>
-    <div class="brand-title">FLASHSCORE</div>
+    <div class="brand-title">OBi'SCORES</div>
+    <div class="sub-brand">Live Football Updates</div>
   </header>
 
-  <!-- SPORTS NAV -->
-  <div class="nav-bar">
-    <a href="#" class="active">Football</a><span class="sep">|</span>
-    <a href="#">Hockey</a><span class="sep">|</span>
-    <a href="#">Tennis</a><span class="sep">|</span>
-    <a href="#">Basketball</a><span class="sep">|</span>
-    <a href="#">Handball</a><span class="sep">|</span>
-    <a href="#">Volleyball</a><span class="sep">|</span>
-    <a href="#">More sports »</a>
-  </div>
-
-  <!-- DATE NAV -->
-  <div class="nav-bar">
-    <a href="#" class="active">Today</a><span class="sep">|</span>
-    <a href="#">Yesterday</a><span class="sep">|</span>
-    <a href="#">Tomorrow</a><span class="sep">|</span>
-    <a href="#">More days »</a>
-  </div>
-
-  <!-- FILTER NAV -->
-  <div class="nav-bar">
-    <a href="#" class="active">All Games</a><span class="sep">|</span>
-    <a href="#">LIVE</a><span class="sep">|</span>
-    <a href="#">Finished</a><span class="sep">|</span>
-    <a href="#">Odds</a>
-  </div>
-
-  <div class="refresh-btn" onclick="fetchScores()">REFRESH NOW</div>
-
-  <div class="category-banner">
-    Football » Today » All Games
-  </div>
-
-  <!-- ADSTERRA BANNER SLOT -->
-  <div class="ad-wrapper">
+  <div class="ad-slot">
     <div class="ad-label">Advertisement</div>
     <script>
       atOptions = {
@@ -229,99 +78,115 @@
     <script src="https://www.highrevenueformat.com/3c42401d24526066c62f017385299762/invoke.js"></script>
   </div>
 
-  <!-- MAIN MATCHES CONTENT -->
   <div id="matches-container">
-    <div style="padding: 15px; color: #666;">Loading fixtures with flags...</div>
+    <div style="padding: 20px; text-align: center; color: #9ca3af;">Loading live football fixtures...</div>
   </div>
 
-  <!-- STICKY BOTTOM AD -->
   <div class="sticky-bottom-ad">
-    <span style="color: #666; font-size: 11px;">Ad Space</span>
+    <span style="color: #6b7280; font-size: 11px;">Ad Space</span>
   </div>
 
   <script>
-    // ISO Country Code mapping for flag generation
-    const countryFlags = {
-      'zambia': 'zm', 'namibia': 'na', 'south africa': 'za', 'mozambique': 'mz',
-      'hong kong': 'hk', 'laos': 'la', 'cambodia': 'kh', 'myanmar': 'mm',
-      'denmark': 'dk', 'wales': 'gb-wls', 'serbia': 'rs', 'netherlands': 'nl',
-      'germany': 'de', 'greece': 'gr', 'norway': 'no', 'portugal': 'pt',
-      'austria': 'at', 'kosovo': 'xk', 'israel': 'il', 'ireland': 'ie',
-      'lithuania': 'lt', 'azerbaijan': 'az', 'gibraltar': 'gi', 'andorra': 'ad',
-      'spain': 'es', 'north korea': 'kp', 'england': 'gb-eng', 'france': 'fr',
-      'italy': 'it', 'brazil': 'br', 'argentina': 'ar', 'africa': 'zm', 'asia': 'hk', 'europe': 'eu'
-    };
+    // Global Country ISO Alpha-2 map generator
+    let isoMap = {};
 
-    function getFlagUrl(text) {
-      const lower = text.toLowerCase();
-      for (const [key, code] of Object.entries(countryFlags)) {
-        if (lower.includes(key)) {
+    // Fetch official ISO country codes dynamically on boot
+    async function initFlags() {
+      try {
+        const res = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2');
+        const countries = await res.json();
+        countries.forEach(c => {
+          if (c.name?.common && c.cca2) {
+            isoMap[c.name.common.toLowerCase()] = c.cca2.toLowerCase();
+          }
+        });
+        // UK Sub-divisions override
+        isoMap['england'] = 'gb-eng';
+        isoMap['wales'] = 'gb-wls';
+        isoMap['scotland'] = 'gb-sct';
+        isoMap['northern ireland'] = 'gb-nir';
+      } catch (e) {
+        console.warn("Flag generator using default CDN fallback");
+      }
+    }
+
+    function DynamicFlag(text, apiCountryCode) {
+      if (apiCountryCode && apiCountryCode.length === 2) {
+        return `https://flagcdn.com/24x18/${apiCountryCode.toLowerCase()}.png`;
+      }
+      
+      if (!text) return 'https://flagcdn.com/24x18/un.png';
+      
+      const cleanText = text.toLowerCase();
+      
+      for (const [countryName, code] of Object.entries(isoMap)) {
+        if (cleanText.includes(countryName)) {
           return `https://flagcdn.com/24x18/${code}.png`;
         }
       }
-      return 'https://flagcdn.com/24x18/un.png'; // Default UN flag
+
+      return 'https://flagcdn.com/24x18/un.png';
     }
 
-    async function fetchScores() {
+    async function loadScores() {
       const container = document.getElementById('matches-container');
       try {
         const res = await fetch('/api/scores');
-        const data = await res.json();
+        const rawData = await res.json();
+
+        let list = [];
+        if (Array.isArray(rawData)) {
+          list = rawData;
+        } else if (rawData?.response) {
+          if (Array.isArray(rawData.response)) {
+            list = rawData.response;
+          } else if (typeof rawData.response === 'object') {
+            Object.values(rawData.response).forEach(val => {
+              if (Array.isArray(val)) list.push(...val);
+            });
+          }
+        }
+
+        if (list.length === 0) {
+          container.innerHTML = `<div style="padding: 30px; text-align: center; color: #9ca3af;">No active fixtures available right now.</div>`;
+          return;
+        }
+
+        // Group live matches by tournament & capture country codes
+        const groups = {};
+        list.forEach(m => {
+          const leagueName = m.league?.name || m.tournament?.name || m.country || "FOOTBALL FIXTURES";
+          const countryCode = m.league?.countryCode || m.countryCode || m.cc || "";
+          
+          if (!groups[leagueName]) {
+            groups[leagueName] = { matches: [], countryCode: countryCode };
+          }
+          groups[leagueName].matches.push(m);
+        });
 
         let html = '';
-
-        if (data.fallback && data.leagues) {
-          data.leagues.forEach(league => {
-            const flagUrl = getFlagUrl(league.name);
-
-            html += `<div class="league-header">
-              <div class="league-title-group">
-                <img src="${flagUrl}" class="flag-icon" alt="flag" />
-                <span>${league.name}</span>
-              </div>
-              <a href="#">Standings</a>
-            </div>`;
-
-            league.matches.forEach(m => {
-              const isLive = m.time.includes("'") || m.time === "90+'";
-              const scoreText = (m.homeScore !== "-" && m.awayScore !== "-") ? `${m.homeScore}-${m.awayScore}` : '-';
-              
-              html += `
-                <div class="match-row">
-                  <div class="match-time ${isLive ? 'live' : ''}">${m.time}</div>
-                  <div class="match-teams">${m.home} - ${m.away}</div>
-                  <div class="match-score ${isLive ? 'live' : ''}">${scoreText}</div>
-                </div>
-              `;
-            });
-          });
-        } else {
-          const rawMatches = data?.response?.matches || data?.response || [];
-          if (!Array.isArray(rawMatches) || rawMatches.length === 0) {
-            container.innerHTML = `<div style="padding: 15px;">No matches scheduled right now.</div>`;
-            return;
-          }
-
-          html += `<div class="league-header">
-            <div class="league-title-group">
-              <img src="https://flagcdn.com/24x18/un.png" class="flag-icon" alt="flag" />
-              <span>WORLD: International Fixtures</span>
+        for (const [title, group] of Object.entries(groups)) {
+          const flagUrl = DynamicFlag(title, group.countryCode);
+          html += `
+            <div class="league-header">
+              <img src="${flagUrl}" class="flag-icon" alt="flag" onerror="this.src='https://flagcdn.com/24x18/un.png'">
+              <span>${title}</span>
             </div>
-          </div>`;
+          `;
 
-          rawMatches.slice(0, 25).forEach(m => {
-            const home = m.home?.name || m.homeTeam || 'Home';
-            const away = m.away?.name || m.awayTeam || 'Away';
-            const homeScore = m.home?.score ?? m.homeScore ?? '-';
-            const awayScore = m.away?.score ?? m.awayScore ?? '-';
+          group.matches.forEach(m => {
+            const home = m.home?.name || m.homeTeam?.name || 'Home';
+            const away = m.away?.name || m.awayTeam?.name || 'Away';
+            const homeScore = m.home?.score ?? m.scores?.home ?? '-';
+            const awayScore = m.away?.score ?? m.scores?.away ?? '-';
             const status = m.status?.reason?.short || m.status || 'FT';
-            const isLive = status.includes("'");
+            const isLive = status.includes("'") || status === 'LIVE';
 
             html += `
               <div class="match-row">
                 <div class="match-time ${isLive ? 'live' : ''}">${status}</div>
-                <div class="match-teams">${home} - ${away}</div>
-                <div class="match-score ${isLive ? 'live' : ''}">${homeScore}-${awayScore}</div>
+                <div class="match-teams">${home} vs ${away}</div>
+                <div class="match-score ${isLive ? 'live' : ''}">${homeScore} - ${awayScore}</div>
               </div>
             `;
           });
@@ -329,14 +194,15 @@
 
         container.innerHTML = html;
       } catch (err) {
-        console.error("Error:", err);
-        container.innerHTML = `<div style="padding: 15px; color: red;">Error loading scores with flags.</div>`;
+        container.innerHTML = `<div style="padding: 20px; text-align: center; color: #ef4444;">Unable to load feed. Retrying...</div>`;
       }
     }
 
-    fetchScores();
-    setInterval(fetchScores, 60000);
+    // Initialize full global flag generator first, then fetch live scores
+    initFlags().then(() => {
+      loadScores();
+      setInterval(loadScores, 60000);
+    });
   </script>
 </body>
-  </html>
-  
+</html>
