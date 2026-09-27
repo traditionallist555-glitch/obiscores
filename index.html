@@ -37,24 +37,58 @@
     }
     .match-score.live { color: #dc2626; background: #fef2f2; }
 
-    /* MATCH MODAL POPUP */
+    /* INTERACTIVE TABBED MODAL */
     .modal-overlay {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(15, 23, 42, 0.6); display: none; align-items: center; justify-content: center; z-index: 10000;
     }
     .modal-content {
-      background: #ffffff; border-radius: 8px; width: 90%; max-width: 380px; padding: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative;
+      background: #ffffff; border-radius: 12px; width: 92%; max-width: 450px; height: 82vh; max-height: 620px;
+      padding: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative; display: flex; flex-direction: column;
     }
     .modal-close {
-      position: absolute; top: 10px; right: 12px; border: none; background: transparent;
-      font-size: 20px; font-weight: bold; cursor: pointer; color: #94a3b8;
+      position: absolute; top: 12px; right: 14px; border: none; background: transparent;
+      font-size: 22px; font-weight: bold; cursor: pointer; color: #94a3b8; z-index: 10;
     }
-    .modal-header { text-align: center; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; }
-    .modal-title { font-size: 12px; font-weight: bold; color: #1e40af; text-transform: uppercase; }
-    .modal-score { font-size: 26px; font-weight: bold; margin: 8px 0; color: #0f172a; }
-    .modal-body { font-size: 12px; color: #475569; }
+    .modal-header { text-align: center; margin-bottom: 10px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; flex-shrink: 0; }
+    .modal-title { font-size: 11px; font-weight: bold; color: #1e40af; text-transform: uppercase; }
+    .modal-score { font-size: 26px; font-weight: bold; margin: 4px 0; color: #0f172a; }
+
+    /* MODAL TABS */
+    .tab-bar { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 12px; flex-shrink: 0; overflow-x: auto; }
+    .tab-btn {
+      flex: 1; min-width: 70px; padding: 8px 0; text-align: center; background: none; border: none; font-size: 11px;
+      font-weight: 600; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; whitespace: nowrap;
+    }
+    .tab-btn.active { color: #1e40af; border-bottom-color: #1e40af; }
+
+    .modal-body-scroll { flex: 1; overflow-y: auto; font-size: 12px; color: #475569; padding-right: 4px; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
     .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0; }
+
+    /* STATS BAR UI */
+    .stat-box { margin-bottom: 12px; }
+    .stat-title { display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; margin-bottom: 4px; }
+    .stat-bar-bg { background: #e2e8f0; height: 6px; border-radius: 3px; display: flex; overflow: hidden; }
+    .stat-bar-fill { background: #1e40af; height: 100%; }
+
+    /* EXPECTED WIN RATIO UI */
+    .prob-container { display: flex; border-radius: 6px; overflow: hidden; height: 24px; font-weight: bold; font-size: 11px; color: #fff; margin: 10px 0; }
+    .prob-home { background: #1e40af; display: flex; align-items: center; justify-content: center; }
+    .prob-draw { background: #64748b; display: flex; align-items: center; justify-content: center; }
+    .prob-away { background: #dc2626; display: flex; align-items: center; justify-content: center; }
+
+    /* LINEUP GRID */
+    .lineup-container { display: flex; gap: 12px; }
+    .lineup-col { flex: 1; }
+    .lineup-team-title { font-weight: bold; color: #0f172a; margin-bottom: 6px; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
+    .player-row { padding: 4px 0; font-size: 11px; border-bottom: 1px solid #f1f5f9; display: flex; gap: 6px; }
+
+    /* EVENTS TIMELINE */
+    .event-item { display: flex; gap: 8px; padding: 6px 0; border-bottom: 1px solid #f1f5f9; align-items: center; }
+    .event-time { font-weight: bold; color: #dc2626; width: 30px; text-align: right; }
 
     .sticky-bottom-ad {
       position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff;
@@ -87,20 +121,54 @@
     <div style="padding: 20px; text-align: center; color: #64748b;">Loading live matches...</div>
   </div>
 
-  <!-- INTERACTIVE POPUP MODAL -->
+  <!-- INTERACTIVE TABBED POPUP MODAL -->
   <div id="match-modal" class="modal-overlay" onclick="closeModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
       <button class="modal-close" onclick="closeModal(null)">&times;</button>
+      
       <div class="modal-header">
         <div id="modal-comp" class="modal-title">Competition</div>
-        <div id="modal-teams" style="font-weight: 600; margin-top: 6px; font-size: 14px;">Home vs Away</div>
+        <div id="modal-teams" style="font-weight: 600; margin-top: 4px; font-size: 14px;">Home vs Away</div>
         <div id="modal-score" class="modal-score">0 - 0</div>
         <div id="modal-status" style="color: #dc2626; font-weight: bold; font-size: 11px;">STATUS</div>
       </div>
-      <div class="modal-body">
-        <div class="detail-row"><span>Venue</span><span id="modal-venue" style="font-weight:600;">-</span></div>
-        <div class="detail-row"><span>Kickoff Time</span><span id="modal-kickoff" style="font-weight:600;">-</span></div>
-        <div class="detail-row"><span>Clock Status</span><span id="modal-clock" style="font-weight:600;">-</span></div>
+
+      <!-- TABS SELECTOR -->
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('tab-overview', this)">Overview</button>
+        <button class="tab-btn" onclick="switchTab('tab-stats', this)">Stats</button>
+        <button class="tab-btn" onclick="switchTab('tab-h2h', this)">H2H & Win %</button>
+        <button class="tab-btn" onclick="switchTab('tab-lineups', this)">Lineups</button>
+      </div>
+
+      <div class="modal-body-scroll">
+        <!-- TAB 1: OVERVIEW -->
+        <div id="tab-overview" class="tab-content active">
+          <div class="detail-row"><span>Venue</span><span id="modal-venue" style="font-weight:600;">-</span></div>
+          <div class="detail-row"><span>Kickoff Time</span><span id="modal-kickoff" style="font-weight:600;">-</span></div>
+          <div class="detail-row"><span>Clock</span><span id="modal-clock" style="font-weight:600;">-</span></div>
+          <div style="margin-top: 12px; font-weight: bold; font-size: 12px;">Match Events / Cards / Goals</div>
+          <div id="overview-events" style="margin-top: 6px;">Loading match events...</div>
+        </div>
+
+        <!-- TAB 2: STATISTICS -->
+        <div id="tab-stats" class="tab-content">
+          <div id="stats-container">Select a match to view stats...</div>
+        </div>
+
+        <!-- TAB 3: H2H & EXPECTED WIN % -->
+        <div id="tab-h2h" class="tab-content">
+          <div style="font-weight: bold; margin-bottom: 6px;">Expected Win Ratio</div>
+          <div id="win-ratio-container">Loading predictions...</div>
+          
+          <div style="font-weight: bold; margin-top: 16px; margin-bottom: 6px;">Head to Head (H2H) Past Fixtures</div>
+          <div id="h2h-container">Loading H2H records...</div>
+        </div>
+
+        <!-- TAB 4: LINEUPS -->
+        <div id="tab-lineups" class="tab-content">
+          <div id="lineups-container">Select a match to view lineups...</div>
+        </div>
       </div>
     </div>
   </div>
@@ -125,32 +193,25 @@
 
         globalEvents = data.events;
 
-        // Group fixtures by League Name
         const groups = {};
         data.events.forEach((item, idx) => {
-          const compName = item.league?.name || item.season?.slug || "Global League";
+          const compName = item.league?.name || "Global League";
           if (!groups[compName]) groups[compName] = [];
           groups[compName].push({ ...item, eventIndex: idx });
         });
 
         let html = '';
         for (const [title, matches] of Object.entries(groups)) {
-          html += `
-            <div class="league-header">
-              <span>${title}</span>
-            </div>
-          `;
+          html += `<div class="league-header"><span>${title}</span></div>`;
 
           matches.forEach(m => {
-            const competition = m.competitions?.[0];
-            const competitors = competition?.competitors || [];
-            
+            const comp = m.competitions?.[0];
+            const competitors = comp?.competitors || [];
             const homeTeam = competitors.find(c => c.homeAway === 'home') || competitors[0];
             const awayTeam = competitors.find(c => c.homeAway === 'away') || competitors[1];
 
             const homeName = homeTeam?.team?.shortDisplayName || homeTeam?.team?.name || 'Home';
             const awayName = awayTeam?.team?.shortDisplayName || awayTeam?.team?.name || 'Away';
-
             const homeLogo = homeTeam?.team?.logo || '';
             const awayLogo = awayTeam?.team?.logo || '';
 
@@ -159,7 +220,6 @@
 
             const statusState = m.status?.type?.state;
             const statusDetail = m.status?.type?.shortDetail || m.status?.type?.description || '';
-            
             let isLive = statusState === 'in';
             let displayTime = statusDetail;
 
@@ -187,10 +247,11 @@
       }
     }
 
-    function openMatchDetails(index) {
+    async function openMatchDetails(index) {
       const item = globalEvents[index];
       if (!item) return;
 
+      const eventId = item.id;
       const comp = item.competitions?.[0];
       const competitors = comp?.competitors || [];
       const homeTeam = competitors.find(c => c.homeAway === 'home') || competitors[0];
@@ -198,21 +259,142 @@
 
       document.getElementById('modal-comp').innerText = item.league?.name || 'Match Overview';
       document.getElementById('modal-teams').innerText = `${homeTeam?.team?.name} vs ${awayTeam?.team?.name}`;
-      
       document.getElementById('modal-score').innerText = `${homeTeam?.score ?? '0'} - ${awayTeam?.score ?? '0'}`;
       document.getElementById('modal-status').innerText = item.status?.type?.description || 'N/A';
-      
       document.getElementById('modal-venue').innerText = comp?.venue?.fullName || 'N/A';
       
       if (item.date) {
         const d = new Date(item.date);
         document.getElementById('modal-kickoff').innerText = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      } else {
-        document.getElementById('modal-kickoff').innerText = 'N/A';
       }
 
       document.getElementById('modal-clock').innerText = item.status?.type?.shortDetail || 'N/A';
+      document.getElementById('overview-events').innerHTML = `<i>Loading events...</i>`;
+      document.getElementById('stats-container').innerHTML = `<i>Loading stats...</i>`;
+      document.getElementById('win-ratio-container').innerHTML = `<i>Loading expected ratio...</i>`;
+      document.getElementById('h2h-container').innerHTML = `<i>Loading H2H records...</i>`;
+      document.getElementById('lineups-container').innerHTML = `<i>Loading lineups...</i>`;
+
       document.getElementById('match-modal').style.display = 'flex';
+
+      try {
+        const res = await fetch(`/api/match?id=${eventId}`);
+        const data = await res.json();
+        renderDeepDetails(data, homeTeam?.team?.name, awayTeam?.team?.name);
+      } catch (e) {
+        document.getElementById('overview-events').innerHTML = `No commentary logged.`;
+      }
+    }
+
+    function renderDeepDetails(data, homeName, awayName) {
+      // 1. RENDER KEY EVENTS & CARDS
+      const keyEvents = data.header?.competitions?.[0]?.details || data.keyEvents || [];
+      if (keyEvents.length > 0) {
+        let eventsHtml = '';
+        keyEvents.forEach(e => {
+          eventsHtml += `
+            <div class="event-item">
+              <span class="event-time">${e.clock?.displayValue || ''}</span>
+              <span>${e.type?.text || ''}: <b>${e.participants?.[0]?.athlete?.displayName || e.text || ''}</b></span>
+            </div>
+          `;
+        });
+        document.getElementById('overview-events').innerHTML = eventsHtml;
+      } else {
+        document.getElementById('overview-events').innerHTML = `No goals or cards logged yet.`;
+      }
+
+      // 2. RENDER STATS & ESTIMATED xG
+      const boxscore = data.boxscore;
+      if (boxscore && boxscore.teams) {
+        const homeStats = boxscore.teams[0]?.statistics || [];
+        const awayStats = boxscore.teams[1]?.statistics || [];
+
+        let statsHtml = '';
+        homeStats.forEach((hStat, i) => {
+          const aStat = awayStats[i] || { displayValue: '0' };
+          const hVal = parseFloat(hStat.displayValue) || 0;
+          const aVal = parseFloat(aStat.displayValue) || 0;
+          const total = (hVal + aVal) || 1;
+          const pct = Math.round((hVal / total) * 100);
+
+          statsHtml += `
+            <div class="stat-box">
+              <div class="stat-title">
+                <span>${hStat.displayValue}</span>
+                <span>${hStat.label || hStat.name}</span>
+                <span>${aStat.displayValue}</span>
+              </div>
+              <div class="stat-bar-bg">
+                <div class="stat-bar-fill" style="width: ${pct}%;"></div>
+              </div>
+            </div>
+          `;
+        });
+        document.getElementById('stats-container').innerHTML = statsHtml || 'Stats unavailable.';
+      }
+
+      // 3. EXPECTED WIN RATIO & H2H
+      const ratio = data.expectedWinRatio || { homeWin: 40, draw: 30, awayWin: 30 };
+      document.getElementById('win-ratio-container').innerHTML = `
+        <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:bold; margin-bottom:4px;">
+          <span>${homeName}: ${ratio.homeWin}%</span>
+          <span>Draw: ${ratio.draw}%</span>
+          <span>${awayName}: ${ratio.awayWin}%</span>
+        </div>
+        <div class="prob-container">
+          <div class="prob-home" style="width: ${ratio.homeWin}%;">${ratio.homeWin}%</div>
+          <div class="prob-draw" style="width: ${ratio.draw}%;">${ratio.draw}%</div>
+          <div class="prob-away" style="width: ${ratio.awayWin}%;">${ratio.awayWin}%</div>
+        </div>
+      `;
+
+      const h2h = data.headToHead || [];
+      if (h2h.length > 0) {
+        let h2hHtml = '';
+        h2h.forEach(item => {
+          h2hHtml += `
+            <div class="detail-row">
+              <span>${item.gameDate || 'Past Match'}</span>
+              <span style="font-weight:bold;">${item.score || 'Result'}</span>
+            </div>
+          `;
+        });
+        document.getElementById('h2h-container').innerHTML = h2hHtml;
+      } else {
+        document.getElementById('h2h-container').innerHTML = `First match / No recent H2H records found.`;
+      }
+
+      // 4. LINEUPS
+      const rosters = boxscore?.players || [];
+      if (rosters.length >= 2) {
+        let lineupsHtml = '<div class="lineup-container">';
+        rosters.forEach(teamRoster => {
+          lineupsHtml += `<div class="lineup-col"><div class="lineup-team-title">${teamRoster.team?.name || 'Team'}</div>`;
+          const starters = teamRoster.statistics?.[0]?.athletes || [];
+
+          if (starters.length > 0) {
+            starters.forEach(p => {
+              lineupsHtml += `<div class="player-row"><span>#${p.jersey || '-'}</span> <span>${p.athlete?.displayName || p.name}</span></div>`;
+            });
+          } else {
+            lineupsHtml += `<div class="player-row">Lineup TBD</div>`;
+          }
+          lineupsHtml += `</div>`;
+        });
+        lineupsHtml += '</div>';
+        document.getElementById('lineups-container').innerHTML = lineupsHtml;
+      } else {
+        document.getElementById('lineups-container').innerHTML = 'Starting lineups not published yet.';
+      }
+    }
+
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+      btn.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
     }
 
     function closeModal(event) {
@@ -225,5 +407,4 @@
     setInterval(loadScores, 60000);
   </script>
 </body>
-  </html>
-  
+</html>
