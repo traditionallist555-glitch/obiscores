@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OBi'SCORES - Live Football</title>
+  <title>OBi'SCORES - Live Football & Streams</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background: #0b0e14; color: #e2e8f0; font-size: 13px; padding-bottom: 70px; }
     
-    header { background: #111827; padding: 12px 16px; border-bottom: 1px solid #1f2937; }
+    header { background: #111827; padding: 12px 16px; border-bottom: 1px solid #1f2937; display: flex; justify-content: space-between; align-items: center; }
     .brand-title { color: #22c55e; font-size: 18px; font-weight: bold; }
     .sub-brand { color: #9ca3af; font-size: 11px; }
 
@@ -49,6 +49,14 @@
       text-align: center;
     }
 
+    .stream-container {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #000;
+      margin-bottom: 15px;
+    }
+    iframe { width: 100%; height: 100%; border: none; }
+
     .sticky-bottom-ad {
       position: fixed; bottom: 0; left: 0; right: 0;
       background: #111827; border-top: 1px solid #1f2937;
@@ -60,10 +68,13 @@
 <body>
 
   <header>
-    <div class="brand-title">OBi'SCORES</div>
-    <div class="sub-brand">Live Football Updates</div>
+    <div>
+      <div class="brand-title">OBi'SCORES</div>
+      <div class="sub-brand">Live Coverage & Streams</div>
+    </div>
   </header>
 
+  <!-- TOP ADSTERRA BANNER SLOT -->
   <div class="ad-slot">
     <div class="ad-label">Advertisement</div>
     <script>
@@ -79,7 +90,7 @@
   </div>
 
   <div id="matches-container">
-    <div style="padding: 20px; text-align: center; color: #9ca3af;">Loading live football fixtures...</div>
+    <div style="padding: 20px; text-align: center; color: #9ca3af;">Loading live feed...</div>
   </div>
 
   <div class="sticky-bottom-ad">
@@ -87,45 +98,44 @@
   </div>
 
   <script>
-    // Global Country ISO Alpha-2 map generator
     let isoMap = {};
 
-    // Fetch official ISO country codes dynamically on boot
     async function initFlags() {
       try {
         const res = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2');
         const countries = await res.json();
         countries.forEach(c => {
-          if (c.name?.common && c.cca2) {
-            isoMap[c.name.common.toLowerCase()] = c.cca2.toLowerCase();
-          }
+          if (c.name?.common && c.cca2) isoMap[c.name.common.toLowerCase()] = c.cca2.toLowerCase();
         });
-        // UK Sub-divisions override
         isoMap['england'] = 'gb-eng';
         isoMap['wales'] = 'gb-wls';
         isoMap['scotland'] = 'gb-sct';
-        isoMap['northern ireland'] = 'gb-nir';
-      } catch (e) {
-        console.warn("Flag generator using default CDN fallback");
-      }
+      } catch (e) {}
     }
 
-    function DynamicFlag(text, apiCountryCode) {
-      if (apiCountryCode && apiCountryCode.length === 2) {
-        return `https://flagcdn.com/24x18/${apiCountryCode.toLowerCase()}.png`;
+    function getFlag(title, countryCode) {
+      if (countryCode && countryCode.length === 2) return `https://flagcdn.com/24x18/${countryCode.toLowerCase()}.png`;
+      if (!title) return 'https://flagcdn.com/24x18/un.png';
+      const clean = title.toLowerCase();
+      for (const [name, code] of Object.entries(isoMap)) {
+        if (clean.includes(name)) return `https://flagcdn.com/24x18/${code}.png`;
       }
-      
-      if (!text) return 'https://flagcdn.com/24x18/un.png';
-      
-      const cleanText = text.toLowerCase();
-      
-      for (const [countryName, code] of Object.entries(isoMap)) {
-        if (cleanText.includes(countryName)) {
-          return `https://flagcdn.com/24x18/${code}.png`;
-        }
-      }
-
       return 'https://flagcdn.com/24x18/un.png';
+    }
+
+    function renderTwitchStream() {
+      return `
+        <div class="league-header">
+          <img src="https://flagcdn.com/24x18/un.png" class="flag-icon" alt="flag">
+          <span>LIVE BROADCAST: EA Sports FC / Football Stream</span>
+        </div>
+        <div class="stream-container">
+          <iframe 
+            src="https://player.twitch.tv/?channel=easportsfc&parent=obiscores.vercel.app&autoplay=true&muted=true" 
+            allowfullscreen>
+          </iframe>
+        </div>
+      `;
     }
 
     async function loadScores() {
@@ -135,38 +145,33 @@
         const rawData = await res.json();
 
         let list = [];
-        if (Array.isArray(rawData)) {
-          list = rawData;
-        } else if (rawData?.response) {
-          if (Array.isArray(rawData.response)) {
-            list = rawData.response;
-          } else if (typeof rawData.response === 'object') {
+        if (Array.isArray(rawData)) list = rawData;
+        else if (rawData?.response) {
+          if (Array.isArray(rawData.response)) list = rawData.response;
+          else if (typeof rawData.response === 'object') {
             Object.values(rawData.response).forEach(val => {
               if (Array.isArray(val)) list.push(...val);
             });
           }
         }
 
-        if (list.length === 0) {
-          container.innerHTML = `<div style="padding: 30px; text-align: center; color: #9ca3af;">No active fixtures available right now.</div>`;
+        // If the API failed, hit limits, or returned zero matches, load the Twitch Live Broadcast stream instead!
+        if (rawData.useTwitchFallback || list.length === 0) {
+          container.innerHTML = renderTwitchStream() + `<div style="padding: 15px; text-align: center; color: #9ca3af;">Live Scores updating shortly...</div>`;
           return;
         }
 
-        // Group live matches by tournament & capture country codes
         const groups = {};
         list.forEach(m => {
           const leagueName = m.league?.name || m.tournament?.name || m.country || "FOOTBALL FIXTURES";
-          const countryCode = m.league?.countryCode || m.countryCode || m.cc || "";
-          
-          if (!groups[leagueName]) {
-            groups[leagueName] = { matches: [], countryCode: countryCode };
-          }
+          const cc = m.league?.countryCode || m.countryCode || "";
+          if (!groups[leagueName]) groups[leagueName] = { matches: [], cc };
           groups[leagueName].matches.push(m);
         });
 
-        let html = '';
+        let html = renderTwitchStream(); // Displays Twitch player at top for live match streams
         for (const [title, group] of Object.entries(groups)) {
-          const flagUrl = DynamicFlag(title, group.countryCode);
+          const flagUrl = getFlag(title, group.cc);
           html += `
             <div class="league-header">
               <img src="${flagUrl}" class="flag-icon" alt="flag" onerror="this.src='https://flagcdn.com/24x18/un.png'">
@@ -194,11 +199,10 @@
 
         container.innerHTML = html;
       } catch (err) {
-        container.innerHTML = `<div style="padding: 20px; text-align: center; color: #ef4444;">Unable to load feed. Retrying...</div>`;
+        container.innerHTML = renderTwitchStream();
       }
     }
 
-    // Initialize full global flag generator first, then fetch live scores
     initFlags().then(() => {
       loadScores();
       setInterval(loadScores, 60000);
