@@ -8,65 +8,55 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background: #ffffff; color: #1e293b; font-size: 13px; padding-bottom: 70px; }
     
-    header {
-      background: #ffffff;
-      padding: 16px 12px;
-      border-bottom: 1px solid #e2e8f0;
-      text-align: center;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-    
-    .site-logo {
-      max-width: 220px;
-      height: auto;
-      display: block;
-      margin: 0 auto;
-    }
+    header { background: #ffffff; padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: center; }
+    .site-logo { max-width: 110px; height: auto; display: block; margin: 0 auto; }
 
     .ad-slot { margin: 12px auto; text-align: center; min-height: 90px; }
     .ad-label { font-size: 10px; color: #94a3b8; margin-bottom: 4px; }
 
     .league-header {
-      background: #f1f5f9;
-      color: #0f172a;
-      font-weight: 700;
-      font-size: 12px;
-      padding: 8px 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      border-left: 4px solid #1e40af;
-      margin-top: 10px;
-      border-bottom: 1px solid #e2e8f0;
+      background: #f1f5f9; color: #0f172a; font-weight: 700; font-size: 12px;
+      padding: 8px 12px; display: flex; align-items: center; gap: 8px;
+      border-left: 4px solid #1e40af; margin-top: 10px; border-bottom: 1px solid #e2e8f0;
     }
-    .flag-icon { width: 18px; height: 13px; object-fit: cover; border-radius: 2px; }
 
     .match-row {
-      display: flex;
-      padding: 12px;
-      border-bottom: 1px solid #f1f5f9;
-      align-items: center;
-      background: #ffffff;
+      display: flex; padding: 12px; border-bottom: 1px solid #f1f5f9;
+      align-items: center; background: #ffffff; cursor: pointer; transition: background 0.15s ease;
     }
-    .match-time { width: 50px; color: #64748b; font-size: 11px; font-weight: 600; }
+    .match-row:hover { background: #f8fafc; }
+    .match-time { width: 55px; color: #64748b; font-size: 11px; font-weight: 600; }
     .match-time.live { color: #dc2626; font-weight: bold; }
     .match-teams { flex: 1; color: #0f172a; font-size: 13px; font-weight: 500; }
     .match-score {
-      font-weight: bold;
-      color: #1e40af;
-      background: #eff6ff;
-      padding: 4px 10px;
-      border-radius: 4px;
-      min-width: 45px;
-      text-align: center;
+      font-weight: bold; color: #1e40af; background: #eff6ff;
+      padding: 4px 10px; border-radius: 4px; min-width: 45px; text-align: center;
     }
+    .match-score.live { color: #dc2626; background: #fef2f2; }
+
+    /* MATCH MODAL POPUP */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.6); display: none; align-items: center; justify-content: center; z-index: 10000;
+    }
+    .modal-content {
+      background: #ffffff; border-radius: 8px; width: 90%; max-width: 380px; padding: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative;
+    }
+    .modal-close {
+      position: absolute; top: 10px; right: 12px; border: none; background: transparent;
+      font-size: 20px; font-weight: bold; cursor: pointer; color: #94a3b8;
+    }
+    .modal-header { text-align: center; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; }
+    .modal-title { font-size: 12px; font-weight: bold; color: #1e40af; text-transform: uppercase; }
+    .modal-score { font-size: 26px; font-weight: bold; margin: 8px 0; color: #0f172a; }
+    .modal-body { font-size: 12px; color: #475569; }
+    .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0; }
 
     .sticky-bottom-ad {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      background: #ffffff; border-top: 1px solid #e2e8f0;
-      text-align: center; z-index: 9999; min-height: 50px;
+      position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff;
+      border-top: 1px solid #e2e8f0; text-align: center; z-index: 9999; min-height: 50px;
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
     }
   </style>
 </head>
@@ -76,7 +66,6 @@
     <img src="1790522014680_2.jpg" alt="Obi'score" class="site-logo">
   </header>
 
-  <!-- ADSTERRA TOP BANNER -->
   <div class="ad-slot">
     <div class="ad-label">Advertisement</div>
     <script>
@@ -92,38 +81,33 @@
   </div>
 
   <div id="matches-container">
-    <div style="padding: 20px; text-align: center; color: #64748b;">Loading live fixtures...</div>
+    <div style="padding: 20px; text-align: center; color: #64748b;">Loading live matches...</div>
   </div>
 
-  <!-- STICKY BOTTOM AD -->
+  <!-- INTERACTIVE POPUP MODAL -->
+  <div id="match-modal" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal(null)">&times;</button>
+      <div class="modal-header">
+        <div id="modal-comp" class="modal-title">Competition</div>
+        <div id="modal-teams" style="font-weight: 600; margin-top: 6px; font-size: 14px;">Home vs Away</div>
+        <div id="modal-score" class="modal-score">0 - 0</div>
+        <div id="modal-status" style="color: #dc2626; font-weight: bold; font-size: 11px;">STATUS</div>
+      </div>
+      <div class="modal-body">
+        <div class="detail-row"><span>Category / Country</span><span id="modal-category" style="font-weight:600;">-</span></div>
+        <div class="detail-row"><span>Kickoff Time</span><span id="modal-kickoff" style="font-weight:600;">-</span></div>
+        <div class="detail-row"><span>Status Description</span><span id="modal-desc" style="font-weight:600;">-</span></div>
+      </div>
+    </div>
+  </div>
+
   <div class="sticky-bottom-ad">
     <span style="color: #94a3b8; font-size: 11px;">Ad Space</span>
   </div>
 
   <script>
-    let isoMap = {};
-
-    async function initFlags() {
-      try {
-        const res = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2');
-        const countries = await res.json();
-        countries.forEach(c => {
-          if (c.name?.common && c.cca2) isoMap[c.name.common.toLowerCase()] = c.cca2.toLowerCase();
-        });
-        isoMap['england'] = 'gb-eng';
-        isoMap['wales'] = 'gb-wls';
-        isoMap['scotland'] = 'gb-sct';
-      } catch (e) {}
-    }
-
-    function getFlag(title) {
-      if (!title) return 'https://flagcdn.com/24x18/un.png';
-      const clean = title.toLowerCase();
-      for (const [name, code] of Object.entries(isoMap)) {
-        if (clean.includes(name)) return `https://flagcdn.com/24x18/${code}.png`;
-      }
-      return 'https://flagcdn.com/24x18/un.png';
-    }
+    let globalEvents = [];
 
     async function loadScores() {
       const container = document.getElementById('matches-container');
@@ -131,52 +115,54 @@
         const res = await fetch('/api/scores');
         const data = await res.json();
 
-        let matches = [];
-        if (data.response) {
-          if (Array.isArray(data.response)) {
-            matches = data.response;
-          } else if (data.response.matches) {
-            matches = data.response.matches;
-          } else if (typeof data.response === 'object') {
-            Object.values(data.response).forEach(val => {
-              if (Array.isArray(val)) matches.push(...val);
-            });
-          }
-        }
-
-        if (matches.length === 0) {
+        if (!data.events || data.events.length === 0) {
           container.innerHTML = `<div style="padding: 20px; text-align: center; color: #64748b;">No active fixtures available right now.</div>`;
           return;
         }
 
+        globalEvents = data.events;
+
+        // Group fixtures by League Name
         const groups = {};
-        matches.forEach(m => {
-          const leagueName = m.league?.name || m.tournament?.name || m.country || "GLOBAL FIXTURES";
-          if (!groups[leagueName]) groups[leagueName] = [];
-          groups[leagueName].push(m);
+        data.events.forEach((item, idx) => {
+          const compName = `${item.tournament?.category?.name || 'GLOBAL'}: ${item.tournament?.name || 'Fixtures'}`;
+          if (!groups[compName]) groups[compName] = [];
+          groups[compName].push({ ...item, eventIndex: idx });
         });
 
         let html = '';
-        for (const [title, leagueMatches] of Object.entries(groups)) {
-          const flagUrl = getFlag(title);
+        for (const [title, matches] of Object.entries(groups)) {
           html += `
             <div class="league-header">
-              <img src="${flagUrl}" class="flag-icon" alt="flag" onerror="this.src='https://flagcdn.com/24x18/un.png'">
               <span>${title}</span>
             </div>
           `;
 
-          leagueMatches.forEach(m => {
-            const home = m.home?.name || m.homeTeam?.name || 'Home';
-            const away = m.away?.name || m.awayTeam?.name || 'Away';
-            const homeScore = m.home?.score ?? m.scores?.home ?? '-';
-            const awayScore = m.away?.score ?? m.scores?.away ?? '-';
-            const status = m.status?.reason?.short || m.status || 'FT';
-            const isLive = status.includes("'") || status === 'LIVE';
+          matches.forEach(m => {
+            const home = m.homeTeam?.name || 'Home';
+            const away = m.awayTeam?.name || 'Away';
+            
+            const homeScore = m.homeScore?.current ?? '-';
+            const awayScore = m.awayScore?.current ?? '-';
+            
+            const statusCode = m.status?.type || '';
+            const statusDesc = m.status?.description || '';
+            let displayTime = '';
+            let isLive = false;
+
+            if (statusCode === 'inprogress') {
+              displayTime = statusDesc || 'LIVE';
+              isLive = true;
+            } else if (statusCode === 'finished') {
+              displayTime = 'FT';
+            } else {
+              const date = new Date(m.startTimestamp * 1000);
+              displayTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }
 
             html += `
-              <div class="match-row">
-                <div class="match-time ${isLive ? 'live' : ''}">${status}</div>
+              <div class="match-row" onclick="openMatchDetails(${m.eventIndex})">
+                <div class="match-time ${isLive ? 'live' : ''}">${displayTime}</div>
                 <div class="match-teams">${home} vs ${away}</div>
                 <div class="match-score ${isLive ? 'live' : ''}">${homeScore} - ${awayScore}</div>
               </div>
@@ -186,14 +172,45 @@
 
         container.innerHTML = html;
       } catch (err) {
-        container.innerHTML = `<div style="padding: 20px; text-align: center; color: #dc2626;">Connecting to match feed...</div>`;
+        container.innerHTML = `<div style="padding: 20px; text-align: center; color: #dc2626;">Loading score feed...</div>`;
       }
     }
 
-    initFlags().then(() => {
-      loadScores();
-      setInterval(loadScores, 60000);
-    });
+    function openMatchDetails(index) {
+      const item = globalEvents[index];
+      if (!item) return;
+
+      document.getElementById('modal-comp').innerText = item.tournament?.name || 'Match Overview';
+      document.getElementById('modal-teams').innerText = `${item.homeTeam?.name} vs ${item.awayTeam?.name}`;
+      
+      const hScore = item.homeScore?.current ?? '0';
+      const aScore = item.awayScore?.current ?? '0';
+      document.getElementById('modal-score').innerText = `${hScore} - ${aScore}`;
+      
+      document.getElementById('modal-status').innerText = item.status?.description || item.status?.type || 'N/A';
+      document.getElementById('modal-category').innerText = item.tournament?.category?.name || 'Global';
+      
+      if (item.startTimestamp) {
+        const d = new Date(item.startTimestamp * 1000);
+        document.getElementById('modal-kickoff').innerText = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      } else {
+        document.getElementById('modal-kickoff').innerText = 'N/A';
+      }
+
+      document.getElementById('modal-desc').innerText = item.status?.type === 'inprogress' ? 'Match Currently In Progress' : (item.status?.type === 'finished' ? 'Match Finished' : 'Scheduled');
+
+      document.getElementById('match-modal').style.display = 'flex';
+    }
+
+    function closeModal(event) {
+      if (!event || event.target.id === 'match-modal' || event.target.className === 'modal-close') {
+        document.getElementById('match-modal').style.display = 'none';
+      }
+    }
+
+    loadScores();
+    setInterval(loadScores, 60000);
   </script>
 </body>
-</html>
+  </html>
+  
