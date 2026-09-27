@@ -1,24 +1,26 @@
 export default async function handler(req, res) {
-  // Allow requests from your frontend
   res.setHeader('Access-Control-Allow-Origin', '*');
-  // Cache for 30 seconds at the edge network (protects performance and bypasses rate limits)
   res.setHeader('Cache-Control', 's-maxage=30, stale-while-revalidate=15');
 
   try {
-    // Generates today's date in YYYY-MM-DD
+    // Generates today's date in YYYY-MM-DD format
     const today = new Date().toISOString().split('T')[0];
     
-    // Fetch live matches directly from global endpoint
-    const response = await fetch(`https://api.sofascore.com/api/v3/scheduled-events/${today}`, {
+    // Updated endpoint including /sport/football/
+    const targetUrl = `https://api.sofascore.com/api/v1/sport/football/scheduled-events/${today}`;
+
+    const response = await fetch(targetUrl, {
       method: 'GET',
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'application/json'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Cache-Control': 'no-cache'
       }
     });
 
     if (!response.ok) {
-      throw new Error(`Proxy error: ${response.status}`);
+      return res.status(response.status).json({ error: `Fetch failed with status ${response.status}` });
     }
 
     const data = await response.json();
