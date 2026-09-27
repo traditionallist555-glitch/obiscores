@@ -1,21 +1,25 @@
 export default async function handler(req, res) {
+  // Allow requests from your frontend
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=30');
-
-  const API_KEY = '91e355defbmshab1ae17f5591707p1068eajsn0b2b10c983a9';
-  const API_HOST = 'free-api-live-football-data.p.rapidapi.com';
+  // Cache for 30 seconds at the edge network (protects performance and bypasses rate limits)
+  res.setHeader('Cache-Control', 's-maxage=30, stale-while-revalidate=15');
 
   try {
-    // Generates YYYY-MM-DD format dynamically
+    // Generates today's date in YYYY-MM-DD
     const today = new Date().toISOString().split('T')[0];
-
-    const response = await fetch(`https://${API_HOST}/football-get-all-matches-by-date?date=${today}`, {
+    
+    // Fetch live matches directly from global endpoint
+    const response = await fetch(`https://api.sofascore.com/api/v3/scheduled-events/${today}`, {
       method: 'GET',
       headers: {
-        'x-rapidapi-key': API_KEY,
-        'x-rapidapi-host': API_HOST
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'application/json'
       }
     });
+
+    if (!response.ok) {
+      throw new Error(`Proxy error: ${response.status}`);
+    }
 
     const data = await response.json();
     return res.status(200).json(data);
