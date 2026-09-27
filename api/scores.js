@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-  // Edge Caching: Caches response on Vercel CDN for 60 seconds
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=30');
 
@@ -7,6 +6,7 @@ export default async function handler(req, res) {
   const API_HOST = 'free-api-live-football-data.p.rapidapi.com';
 
   try {
+    // Primary attempt: Fetch live matches
     const response = await fetch(`https://${API_HOST}/football-get-all-matches-by-date?date=${new Date().toISOString().split('T')[0]}`, {
       method: 'GET',
       headers: {
@@ -16,12 +16,12 @@ export default async function handler(req, res) {
     });
 
     if (!response.ok) {
-      throw new Error(`API response status: ${response.status}`);
+      throw new Error(`API returned status ${response.status}`);
     }
 
     const data = await response.json();
     return res.status(200).json(data);
   } catch (err) {
-    return res.status(500).json({ error: 'Failed to fetch live matches', details: err.message });
+    return res.status(200).json({ status: 'error', message: err.message, response: [] });
   }
-                                              }
+}
