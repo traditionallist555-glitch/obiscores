@@ -5,12 +5,13 @@ export default async function handler(req, res) {
   const { date } = req.query;
   const targetDate = date || new Date().toISOString().slice(0, 10).replace(/-/g, '');
 
-  // Master league endpoints covering upper, lower, cup, and global divisions
+  // Comprehensive league list including upper/lower divisions, cups, and international feeds
   const leagueList = [
     { slug: 'eng.1', country: 'ENGLAND', league: 'Premier League' },
     { slug: 'eng.2', country: 'ENGLAND', league: 'Championship' },
     { slug: 'eng.3', country: 'ENGLAND', league: 'League One' },
     { slug: 'eng.4', country: 'ENGLAND', league: 'League Two' },
+    { slug: 'eng.trophy', country: 'ENGLAND', league: 'EFL Trophy / Youth' },
     { slug: 'esp.1', country: 'SPAIN', league: 'LaLiga' },
     { slug: 'esp.2', country: 'SPAIN', league: 'LaLiga 2' },
     { slug: 'ita.1', country: 'ITALY', league: 'Serie A' },
@@ -23,13 +24,20 @@ export default async function handler(req, res) {
     { slug: 'por.1', country: 'PORTUGAL', league: 'Liga Portugal' },
     { slug: 'tur.1', country: 'TURKEY', league: 'Super Lig' },
     { slug: 'sco.1', country: 'SCOTLAND', league: 'Premiership' },
+    { slug: 'arg.1', country: 'ARGENTINA', league: 'Liga Profesional' },
+    { slug: 'arg.2', country: 'ARGENTINA', league: 'Primera Nacional' },
+    { slug: 'bra.1', country: 'BRAZIL', league: 'Serie A' },
+    { slug: 'bra.2', country: 'BRAZIL', league: 'Serie B' },
+    { slug: 'bra.3', country: 'BRAZIL', league: 'Serie C' },
+    { slug: 'col.1', country: 'COLOMBIA', league: 'Primera A' },
+    { slug: 'mex.1', country: 'MEXICO', league: 'Liga MX' },
+    { slug: 'usa.1', country: 'USA', league: 'MLS' },
+    { slug: 'ksa.1', country: 'SAUDI ARABIA', league: 'Pro League' },
     { slug: 'uefa.champions', country: 'EUROPE', league: 'UEFA Champions League' },
     { slug: 'uefa.europa', country: 'EUROPE', league: 'UEFA Europa League' },
-    { slug: 'usa.1', country: 'USA', league: 'MLS' },
-    { slug: 'mex.1', country: 'MEXICO', league: 'Liga MX' },
-    { slug: 'arg.1', country: 'ARGENTINA', league: 'Liga Profesional' },
-    { slug: 'bra.1', country: 'BRAZIL', league: 'Serie A' },
-    { slug: 'ksa.1', country: 'SAUDI ARABIA', league: 'Pro League' },
+    { slug: 'uefa.nations', country: 'EUROPE', league: 'UEFA Nations League' },
+    { slug: 'uefa.u21', country: 'EUROPE', league: 'Euro U21 Qualification' },
+    { slug: 'caf.nations', country: 'AFRICA', league: 'Africa Cup of Nations' },
     { slug: 'fifa.friendly', country: 'INTERNATIONAL', league: 'Friendlies' },
     { slug: 'all', country: 'WORLD', league: 'International Matches' }
   ];
@@ -71,4 +79,5 @@ export default async function handler(req, res) {
   } catch (err) {
     return res.status(500).json({ error: 'Failed to fetch matches', details: err.message });
   }
-}
+      }
+        
