@@ -3,38 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Obi'score - Live Scores, Odds & Predictions</title>
+  <title>Obi'score - Live Football, Odds & AI Predictions</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: #f8fafc; color: #1e293b; font-size: 13px; padding-bottom: 70px; }
+    body { background: #f1f5f9; color: #0f172a; font-size: 13px; padding-bottom: 70px; }
     
-    /* LEFT ALIGNED CLICKABLE LOGO */
-    header { 
-      background: #ffffff; 
-      padding: 8px 14px; 
-      border-bottom: 1px solid #e2e8f0; 
-      display: flex; 
-      align-items: center; 
-      justify-content: flex-start; 
-    }
-    .site-logo-link { display: inline-block; text-decoration: none; }
-    .site-logo { height: 38px; width: auto; display: block; object-fit: contain; }
+    header { background: #ffffff; padding: 10px 14px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; }
+    .site-logo { height: 38px; width: auto; object-fit: contain; }
 
-    .ad-slot { margin: 6px auto; text-align: center; min-height: 90px; }
-    .ad-label { font-size: 10px; color: #94a3b8; margin-bottom: 2px; }
-
-    /* FLASHSCORE TOP NAVIGATION */
-    .filter-bar { display: flex; background: #0f172a; padding: 0 4px; }
+    .filter-bar { display: flex; background: #0f172a; }
     .filter-btn {
-      flex: 1; padding: 9px 0; background: none; border: none; color: #94a3b8;
+      flex: 1; padding: 10px 0; background: none; border: none; color: #94a3b8;
       font-size: 11px; font-weight: 700; text-transform: uppercase; cursor: pointer; text-align: center;
     }
-    .filter-btn.active { color: #38bdf8; border-bottom: 2px solid #38bdf8; }
+    .filter-btn.active { color: #38bdf8; border-bottom: 3px solid #38bdf8; background: #1e293b; }
 
-    /* DATE NAVIGATION */
     .date-nav {
       display: flex; align-items: center; justify-content: space-between;
-      background: #1e293b; color: #ffffff; padding: 7px 12px;
+      background: #1e293b; color: #ffffff; padding: 8px 14px;
     }
     .date-btn {
       background: #334155; color: #ffffff; border: none; padding: 5px 12px;
@@ -43,113 +29,90 @@
     .date-btn:disabled { opacity: 0.3; cursor: not-allowed; }
     .current-date-display { font-weight: bold; font-size: 12px; color: #38bdf8; text-transform: uppercase; }
 
-    /* FLASHSCORE HIGHLIGHTED LEAGUE HEADER (A-Z) */
+    /* FLASHSCORE HIGHLIGHTED LEAGUE BOX (A-Z) */
     .league-header {
-      background: #1a202c; color: #f7fafc; font-weight: 800; font-size: 11px;
-      padding: 7px 12px; display: flex; align-items: center; justify-content: space-between;
-      margin-top: 4px; border-left: 4px solid #3182ce; text-transform: uppercase;
+      background: #1e293b; color: #ffffff; font-weight: 800; font-size: 11px;
+      padding: 8px 12px; display: flex; align-items: center; justify-content: space-between;
+      margin-top: 6px; border-left: 5px solid #0284c7; text-transform: uppercase; letter-spacing: 0.5px;
     }
-    .league-header.live-header { background: #9b2c2c; border-left-color: #feb2b2; }
+    .league-header.live-header { background: #991b1b; border-left-color: #fca5a5; }
 
     .match-row {
-      display: flex; padding: 8px 12px; border-bottom: 1px solid #e2e8f0;
+      display: flex; padding: 10px 12px; border-bottom: 1px solid #e2e8f0;
       align-items: center; background: #ffffff; cursor: pointer; gap: 8px;
     }
-    .match-row:hover { background: #f1f5f9; }
-    .match-status { width: 52px; color: #64748b; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-    .match-status.live { color: #e53e3e; font-weight: 800; }
-    .match-status.finished { color: #4a5568; font-weight: 700; }
+    .match-row:hover { background: #f8fafc; }
+    .match-status { width: 55px; color: #64748b; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .match-status.live { color: #dc2626; font-weight: 800; }
+    .match-status.finished { color: #475569; font-weight: 700; }
     
-    .match-teams { flex: 1; color: #0f172a; font-size: 12px; font-weight: 600; display: flex; flex-direction: column; gap: 3px; }
+    .match-teams { flex: 1; color: #0f172a; font-size: 12px; font-weight: 600; display: flex; flex-direction: column; gap: 4px; }
     .team-line { display: flex; align-items: center; gap: 6px; }
-    .team-flag { width: 15px; height: 15px; object-fit: contain; }
+    .team-flag { width: 16px; height: 16px; object-fit: contain; }
     
     .match-score {
-      font-weight: bold; color: #0f172a; background: #edf2f7;
-      padding: 4px 8px; border-radius: 4px; min-width: 42px; text-align: center; font-size: 12px;
+      font-weight: bold; color: #0f172a; background: #f1f5f9;
+      padding: 5px 10px; border-radius: 4px; min-width: 45px; text-align: center; font-size: 12px;
     }
-    .match-score.live { color: #e53e3e; background: #fff5f5; border: 1px solid #fed7d7; }
+    .match-score.live { color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; }
 
-    /* ODDS DISPLAY */
-    .odds-box { display: flex; gap: 3px; margin-left: 4px; }
-    .odds-val { background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 3px; padding: 2px 5px; font-size: 10px; color: #2b6cb0; font-weight: bold; }
+    .odds-box { display: flex; gap: 3px; }
+    .odds-val { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 3px; padding: 3px 6px; font-size: 10px; color: #0369a1; font-weight: bold; }
 
-    /* TABBED POPUP MODAL */
+    /* MODAL DISPLAY */
     .modal-overlay {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(15, 23, 42, 0.7); display: none; align-items: center; justify-content: center; z-index: 10000;
+      background: rgba(15, 23, 42, 0.75); display: none; align-items: center; justify-content: center; z-index: 10000;
     }
     .modal-content {
-      background: #ffffff; border-radius: 10px; width: 94%; max-width: 480px; height: 86vh; max-height: 660px;
-      padding: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); position: relative; display: flex; flex-direction: column;
+      background: #ffffff; border-radius: 10px; width: 94%; max-width: 480px; height: 88vh; max-height: 680px;
+      padding: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); position: relative; display: flex; flex-direction: column;
     }
     .modal-close {
-      position: absolute; top: 10px; right: 12px; border: none; background: transparent;
+      position: absolute; top: 12px; right: 14px; border: none; background: transparent;
       font-size: 24px; font-weight: bold; cursor: pointer; color: #94a3b8; z-index: 10;
     }
-    .modal-header { text-align: center; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; flex-shrink: 0; }
-    .modal-title { font-size: 11px; font-weight: bold; color: #1e40af; text-transform: uppercase; }
-    .modal-score { font-size: 24px; font-weight: bold; margin: 2px 0; color: #0f172a; }
+    .modal-header { text-align: center; margin-bottom: 10px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; flex-shrink: 0; }
+    .modal-title { font-size: 11px; font-weight: 800; color: #0284c7; text-transform: uppercase; letter-spacing: 0.5px; }
+    .modal-score { font-size: 26px; font-weight: 800; margin: 3px 0; color: #0f172a; }
 
-    .tab-bar { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 10px; flex-shrink: 0; }
+    .tab-bar { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 12px; flex-shrink: 0; }
     .tab-btn {
       flex: 1; padding: 8px 0; text-align: center; background: none; border: none; font-size: 11px;
-      font-weight: bold; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px;
+      font-weight: 700; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px;
     }
-    .tab-btn.active { color: #1e40af; border-bottom-color: #1e40af; }
+    .tab-btn.active { color: #0284c7; border-bottom-color: #0284c7; }
 
-    .modal-body-scroll { flex: 1; overflow-y: auto; font-size: 12px; color: #334155; padding-right: 2px; }
+    .modal-body-scroll { flex: 1; overflow-y: auto; font-size: 12px; color: #334155; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    .detail-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px dashed #e2e8f0; }
+    .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0; }
 
-    /* EXPECTED STATS / PREDICTIONS UI */
-    .prediction-card { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; margin-bottom: 10px; }
-    .pred-title { font-weight: bold; color: #0369a1; margin-bottom: 6px; text-transform: uppercase; font-size: 11px; }
+    /* STATS SECTION 1: EXPECTED STATS PREDICTIONS CARD */
+    .section-header { font-weight: 800; color: #0f172a; font-size: 12px; text-transform: uppercase; margin: 12px 0 8px 0; border-left: 3px solid #0284c7; padding-left: 6px; }
+    .prediction-card { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; margin-bottom: 12px; }
     .pred-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .pred-item { background: #ffffff; padding: 8px; border-radius: 4px; border: 1px solid #e0f2fe; text-align: center; }
-    .pred-val { font-size: 15px; font-weight: bold; color: #0284c7; }
-    .pred-label { font-size: 10px; color: #64748b; font-weight: 600; }
+    .pred-val { font-size: 16px; font-weight: 800; color: #0284c7; }
+    .pred-label { font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; }
 
-    /* FLASHSCORE STATS BARS */
+    /* STATS SECTION 2: REAL-TIME MATCH STATS BARS */
     .stat-box { margin-bottom: 10px; }
     .stat-title { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; margin-bottom: 4px; }
     .stat-bar-container { display: flex; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; }
-    .stat-bar-home { background: #dc2626; height: 100%; }
+    .stat-bar-home { background: #0284c7; height: 100%; }
     .stat-bar-away { background: #0f172a; height: 100%; margin-left: auto; }
-
-    .sticky-bottom-ad {
-      position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff;
-      border-top: 1px solid #e2e8f0; text-align: center; z-index: 9999; min-height: 50px;
-      display: flex; align-items: center; justify-content: center;
-    }
   </style>
 </head>
 <body>
 
-  <!-- LEFT ALIGNED CLICKABLE LOGO -->
   <header>
-    <a href="/" class="site-logo-link">
+    <a href="/">
       <img src="1790522014680_2.jpg" alt="Obi'score Logo" class="site-logo">
     </a>
   </header>
 
-  <div class="ad-slot">
-    <div class="ad-label">Advertisement</div>
-    <script>
-      atOptions = {
-        'key' : '3c42401d24526066c62f017385299762',
-        'format' : 'iframe',
-        'height' : 90,
-        'width' : 728,
-        'params' : {}
-      };
-    </script>
-    <script src="https://www.highrevenueformat.com/3c42401d24526066c62f017385299762/invoke.js"></script>
-  </div>
-
-  <!-- FLASHSCORE TOP NAV -->
   <div class="filter-bar">
     <button class="filter-btn active" onclick="setFilter('ALL', this)">All</button>
     <button class="filter-btn" onclick="setFilter('LIVE', this)">Live</button>
@@ -157,7 +120,6 @@
     <button class="filter-btn" onclick="setFilter('SCHEDULED', this)">Scheduled</button>
   </div>
 
-  <!-- DATE NAVIGATION -->
   <div class="date-nav">
     <button id="prev-day-btn" class="date-btn" onclick="changeDate(-1)">&laquo; Prev</button>
     <div id="date-label" class="current-date-display">Today</div>
@@ -168,55 +130,47 @@
     <div style="padding: 20px; text-align: center; color: #64748b;">Loading fixtures...</div>
   </div>
 
-  <!-- MATCH MODAL -->
+  <!-- MATCH POPUP MODAL -->
   <div id="match-modal" class="modal-overlay" onclick="closeModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
       <button class="modal-close" onclick="closeModal(null)">&times;</button>
       
       <div class="modal-header">
         <div id="modal-comp" class="modal-title">League</div>
-        <div id="modal-teams" style="font-weight: 700; margin-top: 4px; font-size: 13px;">Home vs Away</div>
+        <div id="modal-teams" style="font-weight: 700; margin-top: 4px; font-size: 14px;">Home vs Away</div>
         <div id="modal-score" class="modal-score">0 - 0</div>
         <div id="modal-status" style="color: #dc2626; font-weight: bold; font-size: 11px;">-</div>
       </div>
 
       <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchTab('tab-overview', this)">Summary</button>
-        <button class="tab-btn" onclick="switchTab('tab-xstats', this)">xStats AI</button>
+        <button class="tab-btn active" onclick="switchTab('tab-overview', this)">Overview</button>
+        <button class="tab-btn" onclick="switchTab('tab-stats', this)">Stats & xStats</button>
         <button class="tab-btn" onclick="switchTab('tab-lineups', this)">Lineups</button>
-        <button class="tab-btn" onclick="switchTab('tab-stats', this)">Stats</button>
-        <button class="tab-btn" onclick="switchTab('tab-h2h', this)">H2H</button>
       </div>
 
       <div class="modal-body-scroll">
         <div id="tab-overview" class="tab-content active">
           <div class="detail-row"><span>Venue</span><span id="modal-venue" style="font-weight:600;">-</span></div>
           <div class="detail-row"><span>Kickoff</span><span id="modal-kickoff" style="font-weight:600;">-</span></div>
-          <div style="margin-top: 12px; font-weight: bold; font-size: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">Match Commentary</div>
-          <div id="overview-events" style="margin-top: 6px;">Loading events...</div>
+          <div class="section-header">Live Events / Commentary</div>
+          <div id="overview-events">Loading events...</div>
         </div>
 
-        <div id="tab-xstats" class="tab-content">
-          <div id="predictions-container">Loading xStats dynamic AI predictions...</div>
+        <div id="tab-stats" class="tab-content">
+          <!-- SECTION 1: EXPECTED STATS PREDICTIONS -->
+          <div class="section-header">1. Expected Stats (AI Engine)</div>
+          <div id="predictions-container">Calculating xStats...</div>
+
+          <!-- SECTION 2: REAL LIVE MATCH STATS -->
+          <div class="section-header">2. Live Match Statistics</div>
+          <div id="real-stats-container">Match statistics will update when live.</div>
         </div>
 
         <div id="tab-lineups" class="tab-content">
           <div id="lineups-container">Loading lineups...</div>
         </div>
-
-        <div id="tab-stats" class="tab-content">
-          <div id="stats-container">Loading statistics...</div>
-        </div>
-
-        <div id="tab-h2h" class="tab-content">
-          <div id="h2h-container">Loading Head-to-Head...</div>
-        </div>
       </div>
     </div>
-  </div>
-
-  <div class="sticky-bottom-ad">
-    <span style="color: #94a3b8; font-size: 11px;">Ad Space</span>
   </div>
 
   <script>
@@ -307,18 +261,18 @@
         if (statusState === 'in' && currentFilter === 'ALL') {
           liveMatches.push(matchData);
         } else {
-          // Format League Name: COUNTRY: League Name (A-Z ready)
-          const country = item.league?.country?.displayName || item.league?.abbreviation || 'WORLD';
-          const compName = `${country.toUpperCase()}: ${item.league?.name || 'League'}`;
+          // Explicit Country + League Title Label (A-Z)
+          const country = item.customCountry || 'WORLD';
+          const leagueName = item.customLeague || item.league?.name || 'League';
+          const titleKey = `${country}: ${leagueName}`;
           
-          if (!leagueGroups[compName]) leagueGroups[compName] = [];
-          leagueGroups[compName].push(matchData);
+          if (!leagueGroups[titleKey]) leagueGroups[titleKey] = [];
+          leagueGroups[titleKey].push(matchData);
         }
       });
 
       let html = '';
 
-      // Live Section Highlighted Red Bar
       if (liveMatches.length > 0) {
         html += `<div class="league-header live-header"><span>LIVE MATCHES (${liveMatches.length})</span></div>`;
         liveMatches.forEach(m => { html += renderMatchRow(m, true); });
@@ -367,10 +321,9 @@
         displayTime = kickoff.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       }
 
-      // Generate pre-match odds simulation if missing
-      const homeOdds = (1.80 + (homeName.length % 5) * 0.3).toFixed(2);
+      const homeOdds = (1.85 + (homeName.length % 4) * 0.25).toFixed(2);
       const drawOdds = (3.10 + (homeName.length % 3) * 0.2).toFixed(2);
-      const awayOdds = (2.20 + (awayName.length % 4) * 0.4).toFixed(2);
+      const awayOdds = (2.25 + (awayName.length % 4) * 0.35).toFixed(2);
 
       return `
         <div class="match-row" onclick="openMatchDetails(${m.originalIndex})">
@@ -394,13 +347,14 @@
       if (!item) return;
 
       const eventId = item.id;
-      const leagueSlug = item.league?.slug || 'all';
+      const leagueSlug = item.leagueSlug || 'all';
       const comp = item.competitions?.[0];
       const competitors = comp?.competitors || [];
       const homeTeam = competitors.find(c => c.homeAway === 'home') || competitors[0];
       const awayTeam = competitors.find(c => c.homeAway === 'away') || competitors[1];
 
-      document.getElementById('modal-comp').innerText = item.league?.name || 'Match Details';
+      const compTitle = `${item.customCountry || 'WORLD'}: ${item.customLeague || item.league?.name || 'Match'}`;
+      document.getElementById('modal-comp').innerText = compTitle;
       document.getElementById('modal-teams').innerText = `${homeTeam?.team?.name} vs ${awayTeam?.team?.name}`;
       document.getElementById('modal-score').innerText = `${homeTeam?.score ?? '0'} - ${awayTeam?.score ?? '0'}`;
       document.getElementById('modal-status').innerText = item.status?.type?.description || '-';
@@ -411,11 +365,10 @@
         document.getElementById('modal-kickoff').innerText = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       }
 
-      document.getElementById('overview-events').innerHTML = `<i>Loading events...</i>`;
+      document.getElementById('overview-events').innerHTML = `<i>Loading match events...</i>`;
       document.getElementById('predictions-container').innerHTML = `<i>Calculating AI expected stats...</i>`;
+      document.getElementById('real-stats-container').innerHTML = `<i>Loading live stats...</i>`;
       document.getElementById('lineups-container').innerHTML = `<i>Loading lineups...</i>`;
-      document.getElementById('stats-container').innerHTML = `<i>Loading stats...</i>`;
-      document.getElementById('h2h-container').innerHTML = `<i>Loading H2H records...</i>`;
 
       document.getElementById('match-modal').style.display = 'flex';
 
@@ -424,64 +377,88 @@
         const data = await res.json();
         renderDeepDetails(data, homeTeam?.team?.name, awayTeam?.team?.name);
       } catch (e) {
-        document.getElementById('overview-events').innerHTML = `No details logged.`;
-        document.getElementById('predictions-container').innerHTML = `AI predictions unavailable.`;
+        document.getElementById('overview-events').innerHTML = `No details logged for this match.`;
+        document.getElementById('predictions-container').innerHTML = `Expected stats unavailable.`;
+        document.getElementById('real-stats-container').innerHTML = `Live stats unavailable.`;
         document.getElementById('lineups-container').innerHTML = `Lineups not published.`;
-        document.getElementById('stats-container').innerHTML = `Statistics not logged.`;
-        document.getElementById('h2h-container').innerHTML = `H2H records unavailable.`;
       }
     }
 
     function renderDeepDetails(data, homeName, awayName) {
-      // 1. COMMENTARY
-      const keyEvents = data.header?.competitions?.[0]?.details || data.keyEvents || data.commentary || [];
+      // 1. MATCH COMMENTARY / EVENTS
+      const keyEvents = data.header?.competitions?.[0]?.details || data.keyEvents || [];
       if (keyEvents.length > 0) {
         let eventsHtml = '';
         keyEvents.forEach(e => {
           eventsHtml += `
-            <div style="padding: 5px 0; border-bottom: 1px solid #f1f5f9; display: flex; gap: 8px;">
+            <div style="padding: 6px 0; border-bottom: 1px solid #f1f5f9; display: flex; gap: 8px;">
               <span style="font-weight:bold; color:#dc2626; width:30px;">${e.clock?.displayValue || e.time || ''}</span>
               <span>${e.type?.text || e.text || ''}</span>
             </div>`;
         });
         document.getElementById('overview-events').innerHTML = eventsHtml;
       } else {
-        document.getElementById('overview-events').innerHTML = `No live commentary logged for this game.`;
+        document.getElementById('overview-events').innerHTML = `No match events logged yet.`;
       }
 
-      // 2. EXPECTED STATS & AI PREDICTIONS (xStats AI)
+      // 2. SECTION 1: EXPECTED STATS PREDICTIONS (xStats AI)
       if (data.predictions) {
         const p = data.predictions;
         document.getElementById('predictions-container').innerHTML = `
           <div class="prediction-card">
-            <div class="pred-title">Match Expectancy (xG Engine)</div>
             <div class="pred-grid">
               <div class="pred-item"><div class="pred-val">${p.expectedGoals.home} - ${p.expectedGoals.away}</div><div class="pred-label">Expected Goals (xG)</div></div>
-              <div class="pred-item"><div class="pred-val">${p.totalExpectedGoals}</div><div class="pred-label">Total Match xG</div></div>
-            </div>
-          </div>
-          <div class="prediction-card">
-            <div class="pred-title">Match Expected Metrics</div>
-            <div class="pred-grid">
               <div class="pred-item"><div class="pred-val">~${p.expectedCorners}</div><div class="pred-label">Expected Corners</div></div>
-              <div class="pred-item"><div class="pred-val">~${p.expectedYellowCards}</div><div class="pred-label">Expected Cards</div></div>
+              <div class="pred-item"><div class="pred-val">~${p.expectedYellowCards}</div><div class="pred-label">Expected Yellow Cards</div></div>
               <div class="pred-item"><div class="pred-val">~${p.expectedFouls}</div><div class="pred-label">Expected Fouls</div></div>
-              <div class="pred-item"><div class="pred-val">${p.winProbability.home}%</div><div class="pred-label">${homeName} Win Prob.</div></div>
             </div>
           </div>
         `;
       } else {
-        document.getElementById('predictions-container').innerHTML = 'Expected metrics unavailable.';
+        document.getElementById('predictions-container').innerHTML = 'Expected stats engine offline.';
       }
 
-      // 3. LINEUPS
-      const rosters = data.rosters || data.boxscore?.players || [];
+      // 3. SECTION 2: REAL LIVE MATCH STATS
+      const boxscore = data.boxscore;
+      if (boxscore && boxscore.teams && boxscore.teams.length >= 2) {
+        const homeStats = boxscore.teams[0]?.statistics || [];
+        const awayStats = boxscore.teams[1]?.statistics || [];
+
+        let statsHtml = '';
+        homeStats.forEach((hStat, i) => {
+          const aStat = awayStats[i] || { displayValue: '0' };
+          const hVal = parseFloat(hStat.displayValue) || 0;
+          const aVal = parseFloat(aStat.displayValue) || 0;
+          const total = (hVal + aVal) || 1;
+          const homePct = Math.round((hVal / total) * 100);
+
+          statsHtml += `
+            <div class="stat-box">
+              <div class="stat-title">
+                <span>${hStat.displayValue}</span>
+                <span>${hStat.label || hStat.name}</span>
+                <span>${aStat.displayValue}</span>
+              </div>
+              <div class="stat-bar-container">
+                <div class="stat-bar-home" style="width: ${homePct}%;"></div>
+                <div class="stat-bar-away" style="width: ${100 - homePct}%;"></div>
+              </div>
+            </div>
+          `;
+        });
+        document.getElementById('real-stats-container').innerHTML = statsHtml || 'Live match stats not started yet.';
+      } else {
+        document.getElementById('real-stats-container').innerHTML = 'Live stats will display when game starts.';
+      }
+
+      // 4. LINEUPS
+      const rosters = data.rosters || [];
       if (rosters.length >= 2) {
         let lineupsHtml = '';
         rosters.forEach(teamRoster => {
           const tName = teamRoster.team?.name || 'Team';
           lineupsHtml += `<div style="margin-bottom:10px;"><div style="background:#0f172a; color:#fff; padding:4px 8px; font-weight:bold; font-size:11px;">${tName}</div>`;
-          const players = teamRoster.roster || teamRoster.statistics?.[0]?.athletes || [];
+          const players = teamRoster.roster || [];
           if (players.length > 0) {
             players.forEach(p => {
               const pName = p.athlete?.displayName || p.displayName || p.name;
@@ -496,62 +473,6 @@
         document.getElementById('lineups-container').innerHTML = lineupsHtml;
       } else {
         document.getElementById('lineups-container').innerHTML = 'Starting lineups not published yet.';
-      }
-
-      // 4. STATS BARS
-      const boxscore = data.boxscore;
-      if (boxscore && boxscore.teams && boxscore.teams.length >= 2) {
-        const homeStats = boxscore.teams[0]?.statistics || [];
-        const awayStats = boxscore.teams[1]?.statistics || [];
-
-        let statsHtml = '';
-        homeStats.forEach((hStat, i) => {
-          const aStat = awayStats[i] || { displayValue: '0' };
-          const hVal = parseFloat(hStat.displayValue) || 0;
-          const aVal = parseFloat(aStat.displayValue) || 0;
-          const total = (hVal + aVal) || 1;
-          const homePct = Math.round((hVal / total) * 100);
-          const awayPct = 100 - homePct;
-
-          statsHtml += `
-            <div class="stat-box">
-              <div class="stat-title">
-                <span>${hStat.displayValue}</span>
-                <span>${hStat.label || hStat.name}</span>
-                <span>${aStat.displayValue}</span>
-              </div>
-              <div class="stat-bar-container">
-                <div class="stat-bar-home" style="width: ${homePct}%;"></div>
-                <div class="stat-bar-away" style="width: ${awayPct}%;"></div>
-              </div>
-            </div>
-          `;
-        });
-        document.getElementById('stats-container').innerHTML = statsHtml || 'Statistics unavailable.';
-      } else {
-        document.getElementById('stats-container').innerHTML = 'Detailed match statistics unavailable.';
-      }
-
-      // 5. HEAD TO HEAD (H2H)
-      const h2h = data.h2hMatches || [];
-      if (h2h.length > 0) {
-        let h2hHtml = '';
-        h2h.slice(0, 5).forEach(m => {
-          const dateStr = new Date(m.date).toLocaleDateString();
-          const compName = m.league?.name || 'Match';
-          const score = m.competitions?.[0]?.competitors ? 
-            `${m.competitions[0].competitors[0].score || 0} - ${m.competitions[0].competitors[1].score || 0}` : 'VS';
-          
-          h2hHtml += `
-            <div class="detail-row">
-              <span>${dateStr} (${compName})</span>
-              <span style="font-weight:bold;">${score}</span>
-            </div>
-          `;
-        });
-        document.getElementById('h2h-container').innerHTML = h2hHtml;
-      } else {
-        document.getElementById('h2h-container').innerHTML = `Previous Head-to-Head records not found for ${homeName} vs ${awayName}.`;
       }
     }
 
