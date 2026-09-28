@@ -3,13 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Obi'score - Live Football, Odds & AI Predictions</title>
+  <title>Obi'score - Live Scores, AI Predictions, H2H & Tables</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background: #f1f5f9; color: #0f172a; font-size: 13px; padding-bottom: 70px; }
     
-    header { background: #ffffff; padding: 10px 14px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; }
+    header { background: #ffffff; padding: 10px 14px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; }
     .site-logo { height: 38px; width: auto; object-fit: contain; }
+
+    .ad-top { background: #1e293b; color: #94a3b8; text-align: center; padding: 6px; font-size: 10px; font-weight: bold; }
 
     .filter-bar { display: flex; background: #0f172a; }
     .filter-btn {
@@ -29,7 +31,7 @@
     .date-btn:disabled { opacity: 0.3; cursor: not-allowed; }
     .current-date-display { font-weight: bold; font-size: 12px; color: #38bdf8; text-transform: uppercase; }
 
-    /* FLASHSCORE HIGHLIGHTED LEAGUE BOX (A-Z) */
+    /* FLASHSCORE HIGHLIGHTED LEAGUE BANNER */
     .league-header {
       background: #1e293b; color: #ffffff; font-weight: 800; font-size: 11px;
       padding: 8px 12px; display: flex; align-items: center; justify-content: space-between;
@@ -59,10 +61,10 @@
     .odds-box { display: flex; gap: 3px; }
     .odds-val { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 3px; padding: 3px 6px; font-size: 10px; color: #0369a1; font-weight: bold; }
 
-    /* MODAL DISPLAY */
+    /* MODAL POPUP */
     .modal-overlay {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(15, 23, 42, 0.75); display: none; align-items: center; justify-content: center; z-index: 10000;
+      background: rgba(15, 23, 42, 0.8); display: none; align-items: center; justify-content: center; z-index: 10000;
     }
     .modal-content {
       background: #ffffff; border-radius: 10px; width: 94%; max-width: 480px; height: 88vh; max-height: 680px;
@@ -76,9 +78,10 @@
     .modal-title { font-size: 11px; font-weight: 800; color: #0284c7; text-transform: uppercase; letter-spacing: 0.5px; }
     .modal-score { font-size: 26px; font-weight: 800; margin: 3px 0; color: #0f172a; }
 
-    .tab-bar { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 12px; flex-shrink: 0; }
+    /* TAB BAR WITH STANDINGS & H2H */
+    .tab-bar { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 12px; flex-shrink: 0; overflow-x: auto; }
     .tab-btn {
-      flex: 1; padding: 8px 0; text-align: center; background: none; border: none; font-size: 11px;
+      flex: 1; min-width: 70px; padding: 8px 0; text-align: center; background: none; border: none; font-size: 11px;
       font-weight: 700; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px;
     }
     .tab-btn.active { color: #0284c7; border-bottom-color: #0284c7; }
@@ -89,20 +92,22 @@
 
     .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0; }
 
-    /* STATS SECTION 1: EXPECTED STATS PREDICTIONS CARD */
-    .section-header { font-weight: 800; color: #0f172a; font-size: 12px; text-transform: uppercase; margin: 12px 0 8px 0; border-left: 3px solid #0284c7; padding-left: 6px; }
+    /* AI STATS PREDICTIONS CARD */
+    .section-header { font-weight: 800; color: #0f172a; font-size: 11px; text-transform: uppercase; margin: 12px 0 8px 0; border-left: 3px solid #0284c7; padding-left: 6px; }
     .prediction-card { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; margin-bottom: 12px; }
     .pred-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .pred-item { background: #ffffff; padding: 8px; border-radius: 4px; border: 1px solid #e0f2fe; text-align: center; }
-    .pred-val { font-size: 16px; font-weight: 800; color: #0284c7; }
+    .pred-val { font-size: 15px; font-weight: 800; color: #0284c7; }
     .pred-label { font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; }
 
-    /* STATS SECTION 2: REAL-TIME MATCH STATS BARS */
-    .stat-box { margin-bottom: 10px; }
-    .stat-title { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; margin-bottom: 4px; }
-    .stat-bar-container { display: flex; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; }
-    .stat-bar-home { background: #0284c7; height: 100%; }
-    .stat-bar-away { background: #0f172a; height: 100%; margin-left: auto; }
+    /* STANDINGS TABLE */
+    .table-view { width: 100%; border-collapse: collapse; font-size: 11px; text-align: center; }
+    .table-view th { background: #0f172a; color: #fff; padding: 6px; }
+    .table-view td { padding: 8px 4px; border-bottom: 1px solid #e2e8f0; }
+    .table-view tr.highlight-team { background: #e0f2fe; font-weight: bold; }
+
+    /* STICKY BOTTOM AD */
+    .sticky-bottom-ad { position: fixed; bottom: 0; left: 0; right: 0; height: 50px; background: #0f172a; border-top: 1px solid #334155; color: #64748b; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; z-index: 999; }
   </style>
 </head>
 <body>
@@ -112,6 +117,8 @@
       <img src="1790522014680_2.jpg" alt="Obi'score Logo" class="site-logo">
     </a>
   </header>
+
+  <div class="ad-top">[ TOP MONETIZATION BANNER SLOT ]</div>
 
   <div class="filter-bar">
     <button class="filter-btn active" onclick="setFilter('ALL', this)">All</button>
@@ -127,10 +134,10 @@
   </div>
 
   <div id="matches-container">
-    <div style="padding: 20px; text-align: center; color: #64748b;">Loading fixtures...</div>
+    <div style="padding: 20px; text-align: center; color: #64748b;">Loading global matches...</div>
   </div>
 
-  <!-- MATCH POPUP MODAL -->
+  <!-- MATCH MODAL -->
   <div id="match-modal" class="modal-overlay" onclick="closeModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
       <button class="modal-close" onclick="closeModal(null)">&times;</button>
@@ -142,9 +149,12 @@
         <div id="modal-status" style="color: #dc2626; font-weight: bold; font-size: 11px;">-</div>
       </div>
 
+      <!-- TABS: OVERVIEW, STATS, H2H, STANDINGS, LINEUPS -->
       <div class="tab-bar">
         <button class="tab-btn active" onclick="switchTab('tab-overview', this)">Overview</button>
-        <button class="tab-btn" onclick="switchTab('tab-stats', this)">Stats & xStats</button>
+        <button class="tab-btn" onclick="switchTab('tab-stats', this)">xStats AI</button>
+        <button class="tab-btn" onclick="switchTab('tab-h2h', this)">H2H</button>
+        <button class="tab-btn" onclick="switchTab('tab-standings', this)">Table</button>
         <button class="tab-btn" onclick="switchTab('tab-lineups', this)">Lineups</button>
       </div>
 
@@ -152,18 +162,23 @@
         <div id="tab-overview" class="tab-content active">
           <div class="detail-row"><span>Venue</span><span id="modal-venue" style="font-weight:600;">-</span></div>
           <div class="detail-row"><span>Kickoff</span><span id="modal-kickoff" style="font-weight:600;">-</span></div>
-          <div class="section-header">Live Events / Commentary</div>
+          <div class="section-header">Match Events</div>
           <div id="overview-events">Loading events...</div>
         </div>
 
         <div id="tab-stats" class="tab-content">
-          <!-- SECTION 1: EXPECTED STATS PREDICTIONS -->
-          <div class="section-header">1. Expected Stats (AI Engine)</div>
+          <div class="section-header">Expected Stats (AI Engine)</div>
           <div id="predictions-container">Calculating xStats...</div>
+        </div>
 
-          <!-- SECTION 2: REAL LIVE MATCH STATS -->
-          <div class="section-header">2. Live Match Statistics</div>
-          <div id="real-stats-container">Match statistics will update when live.</div>
+        <div id="tab-h2h" class="tab-content">
+          <div class="section-header">Head To Head (Last 5 Direct Encounters)</div>
+          <div id="h2h-container">Loading H2H records...</div>
+        </div>
+
+        <div id="tab-standings" class="tab-content">
+          <div class="section-header">League Table</div>
+          <div id="standings-container">Loading standings...</div>
         </div>
 
         <div id="tab-lineups" class="tab-content">
@@ -172,6 +187,8 @@
       </div>
     </div>
   </div>
+
+  <div class="sticky-bottom-ad">[ MOBILE STICKY AD BANNER (320x50) ]</div>
 
   <script>
     let globalEvents = [];
@@ -223,7 +240,7 @@
         const data = await res.json();
 
         if (!data.events || data.events.length === 0) {
-          container.innerHTML = `<div style="padding: 20px; text-align: center; color: #64748b;">No fixtures available for this date.</div>`;
+          container.innerHTML = `<div style="padding: 20px; text-align: center; color: #64748b;">No matches found for this date.</div>`;
           return;
         }
 
@@ -247,7 +264,7 @@
       }
 
       if (filtered.length === 0) {
-        container.innerHTML = `<div style="padding: 20px; text-align: center; color: #64748b;">No ${currentFilter.toLowerCase()} matches found.</div>`;
+        container.innerHTML = `<div style="padding: 20px; text-align: center; color: #64748b;">No ${currentFilter.toLowerCase()} matches.</div>`;
         return;
       }
 
@@ -261,7 +278,6 @@
         if (statusState === 'in' && currentFilter === 'ALL') {
           liveMatches.push(matchData);
         } else {
-          // Explicit Country + League Title Label (A-Z)
           const country = item.customCountry || 'WORLD';
           const leagueName = item.customLeague || item.league?.name || 'League';
           const titleKey = `${country}: ${leagueName}`;
@@ -278,7 +294,6 @@
         liveMatches.forEach(m => { html += renderMatchRow(m, true); });
       }
 
-      // Sort Leagues Alphabetically A-Z
       const sortedLeagues = Object.keys(leagueGroups).sort();
 
       sortedLeagues.forEach(title => {
@@ -367,7 +382,8 @@
 
       document.getElementById('overview-events').innerHTML = `<i>Loading match events...</i>`;
       document.getElementById('predictions-container').innerHTML = `<i>Calculating AI expected stats...</i>`;
-      document.getElementById('real-stats-container').innerHTML = `<i>Loading live stats...</i>`;
+      document.getElementById('h2h-container').innerHTML = `<i>Loading H2H stats...</i>`;
+      document.getElementById('standings-container').innerHTML = `<i>Loading standings...</i>`;
       document.getElementById('lineups-container').innerHTML = `<i>Loading lineups...</i>`;
 
       document.getElementById('match-modal').style.display = 'flex';
@@ -377,31 +393,12 @@
         const data = await res.json();
         renderDeepDetails(data, homeTeam?.team?.name, awayTeam?.team?.name);
       } catch (e) {
-        document.getElementById('overview-events').innerHTML = `No details logged for this match.`;
-        document.getElementById('predictions-container').innerHTML = `Expected stats unavailable.`;
-        document.getElementById('real-stats-container').innerHTML = `Live stats unavailable.`;
-        document.getElementById('lineups-container').innerHTML = `Lineups not published.`;
+        document.getElementById('overview-events').innerHTML = `No details logged.`;
       }
     }
 
     function renderDeepDetails(data, homeName, awayName) {
-      // 1. MATCH COMMENTARY / EVENTS
-      const keyEvents = data.header?.competitions?.[0]?.details || data.keyEvents || [];
-      if (keyEvents.length > 0) {
-        let eventsHtml = '';
-        keyEvents.forEach(e => {
-          eventsHtml += `
-            <div style="padding: 6px 0; border-bottom: 1px solid #f1f5f9; display: flex; gap: 8px;">
-              <span style="font-weight:bold; color:#dc2626; width:30px;">${e.clock?.displayValue || e.time || ''}</span>
-              <span>${e.type?.text || e.text || ''}</span>
-            </div>`;
-        });
-        document.getElementById('overview-events').innerHTML = eventsHtml;
-      } else {
-        document.getElementById('overview-events').innerHTML = `No match events logged yet.`;
-      }
-
-      // 2. SECTION 1: EXPECTED STATS PREDICTIONS (xStats AI)
+      // 1. AI Expected Stats
       if (data.predictions) {
         const p = data.predictions;
         document.getElementById('predictions-container').innerHTML = `
@@ -409,70 +406,51 @@
             <div class="pred-grid">
               <div class="pred-item"><div class="pred-val">${p.expectedGoals.home} - ${p.expectedGoals.away}</div><div class="pred-label">Expected Goals (xG)</div></div>
               <div class="pred-item"><div class="pred-val">~${p.expectedCorners}</div><div class="pred-label">Expected Corners</div></div>
-              <div class="pred-item"><div class="pred-val">~${p.expectedYellowCards}</div><div class="pred-label">Expected Yellow Cards</div></div>
+              <div class="pred-item"><div class="pred-val">~${p.expectedYellowCards}</div><div class="pred-label">Expected Cards</div></div>
               <div class="pred-item"><div class="pred-val">~${p.expectedFouls}</div><div class="pred-label">Expected Fouls</div></div>
             </div>
           </div>
         `;
-      } else {
-        document.getElementById('predictions-container').innerHTML = 'Expected stats engine offline.';
       }
 
-      // 3. SECTION 2: REAL LIVE MATCH STATS
-      const boxscore = data.boxscore;
-      if (boxscore && boxscore.teams && boxscore.teams.length >= 2) {
-        const homeStats = boxscore.teams[0]?.statistics || [];
-        const awayStats = boxscore.teams[1]?.statistics || [];
-
-        let statsHtml = '';
-        homeStats.forEach((hStat, i) => {
-          const aStat = awayStats[i] || { displayValue: '0' };
-          const hVal = parseFloat(hStat.displayValue) || 0;
-          const aVal = parseFloat(aStat.displayValue) || 0;
-          const total = (hVal + aVal) || 1;
-          const homePct = Math.round((hVal / total) * 100);
-
-          statsHtml += `
-            <div class="stat-box">
-              <div class="stat-title">
-                <span>${hStat.displayValue}</span>
-                <span>${hStat.label || hStat.name}</span>
-                <span>${aStat.displayValue}</span>
-              </div>
-              <div class="stat-bar-container">
-                <div class="stat-bar-home" style="width: ${homePct}%;"></div>
-                <div class="stat-bar-away" style="width: ${100 - homePct}%;"></div>
-              </div>
-            </div>
-          `;
+      // 2. H2H Tab
+      if (data.h2h) {
+        let h2hHtml = '';
+        data.h2h.forEach(m => {
+          h2hHtml += `
+            <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f1f5f9; font-size:11px;">
+              <span style="color:#64748b;">${m.date}</span>
+              <span style="font-weight:bold;">${m.home} ${m.score} ${m.away}</span>
+            </div>`;
         });
-        document.getElementById('real-stats-container').innerHTML = statsHtml || 'Live match stats not started yet.';
-      } else {
-        document.getElementById('real-stats-container').innerHTML = 'Live stats will display when game starts.';
+        document.getElementById('h2h-container').innerHTML = h2hHtml;
       }
 
-      // 4. LINEUPS
-      const rosters = data.rosters || [];
-      if (rosters.length >= 2) {
-        let lineupsHtml = '';
-        rosters.forEach(teamRoster => {
-          const tName = teamRoster.team?.name || 'Team';
-          lineupsHtml += `<div style="margin-bottom:10px;"><div style="background:#0f172a; color:#fff; padding:4px 8px; font-weight:bold; font-size:11px;">${tName}</div>`;
-          const players = teamRoster.roster || [];
-          if (players.length > 0) {
-            players.forEach(p => {
-              const pName = p.athlete?.displayName || p.displayName || p.name;
-              const jersey = p.jersey || p.athlete?.jersey || '-';
-              lineupsHtml += `<div style="padding:4px 6px; border-bottom:1px solid #f1f5f9; display:flex; gap:8px; font-size:11px;"><span style="color:#64748b; font-weight:bold; width:20px;">#${jersey}</span><span>${pName}</span></div>`;
-            });
-          } else {
-            lineupsHtml += `<div style="padding:6px;">Lineups TBD</div>`;
-          }
-          lineupsHtml += `</div>`;
+      // 3. Standings Table Tab
+      if (data.standings) {
+        let stHtml = `
+          <table class="table-view">
+            <thead>
+              <tr><th>#</th><th style="text-align:left;">Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>PTS</th></tr>
+            </thead>
+            <tbody>`;
+        
+        data.standings.forEach(row => {
+          const isUserMatch = (row.team === homeName || row.team === awayName);
+          stHtml += `
+            <tr class="${isUserMatch ? 'highlight-team' : ''}">
+              <td>${row.rank}</td>
+              <td style="text-align:left;">${row.team}</td>
+              <td>${row.p}</td>
+              <td>${row.w}</td>
+              <td>${row.d}</td>
+              <td>${row.l}</td>
+              <td><b>${row.pts}</b></td>
+            </tr>`;
         });
-        document.getElementById('lineups-container').innerHTML = lineupsHtml;
-      } else {
-        document.getElementById('lineups-container').innerHTML = 'Starting lineups not published yet.';
+        
+        stHtml += `</tbody></table>`;
+        document.getElementById('standings-container').innerHTML = stHtml;
       }
     }
 
