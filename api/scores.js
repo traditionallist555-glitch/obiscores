@@ -5,55 +5,56 @@ export default async function handler(req, res) {
   const { date } = req.query;
   const targetDate = date || new Date().toISOString().slice(0, 10).replace(/-/g, '');
 
-  // Comprehensive list of global league slugs to fetch concurrently
-  const globalLeagues = [
-    'all',                          // Global Master Feed
-    'eng.1', 'eng.2', 'eng.3', 'eng.4', 'eng.5', // England (PL, Championship, L1, L2, National)
-    'esp.1', 'esp.2',                // Spain (LaLiga, Segunda)
-    'ita.1', 'ita.2',                // Italy (Serie A, Serie B)
-    'ger.1', 'ger.2',                // Germany (Bundesliga, 2. Bundesliga)
-    'fra.1', 'fra.2',                // France (Ligue 1, Ligue 2)
-    'ned.1', 'por.1', 'bel.1', 'tur.1', 'sco.1', // UEFA Tier 2 (Eredivisie, Liga Portugal, etc.)
-    'uefa.champions', 'uefa.europa', 'uefa.europa.conf', // European Cups
-    'arg.1', 'bra.1', 'bra.2', 'col.1', 'chi.1', // South America (Argentina, Brazil, etc.)
-    'conmebol.libertadores', 'conmebol.sudamericana',
-    'usa.1', 'mex.1',                // North America (MLS, Liga MX)
-    'caf.champions', 'afr.nations',  // Africa
-    'afc.champions', 'ksa.1', 'jpn.1', 'aus.1', // Asia & Oceania (Saudi Pro League, J-League, A-League)
-    'fifa.friendly', 'global'       // International Friendlies & World Competitions
+  // Master league endpoints covering upper, lower, cup, and global divisions
+  const leagueList = [
+    { slug: 'eng.1', country: 'ENGLAND', league: 'Premier League' },
+    { slug: 'eng.2', country: 'ENGLAND', league: 'Championship' },
+    { slug: 'eng.3', country: 'ENGLAND', league: 'League One' },
+    { slug: 'eng.4', country: 'ENGLAND', league: 'League Two' },
+    { slug: 'esp.1', country: 'SPAIN', league: 'LaLiga' },
+    { slug: 'esp.2', country: 'SPAIN', league: 'LaLiga 2' },
+    { slug: 'ita.1', country: 'ITALY', league: 'Serie A' },
+    { slug: 'ita.2', country: 'ITALY', league: 'Serie B' },
+    { slug: 'ger.1', country: 'GERMANY', league: 'Bundesliga' },
+    { slug: 'ger.2', country: 'GERMANY', league: '2. Bundesliga' },
+    { slug: 'fra.1', country: 'FRANCE', league: 'Ligue 1' },
+    { slug: 'fra.2', country: 'FRANCE', league: 'Ligue 2' },
+    { slug: 'ned.1', country: 'NETHERLANDS', league: 'Eredivisie' },
+    { slug: 'por.1', country: 'PORTUGAL', league: 'Liga Portugal' },
+    { slug: 'tur.1', country: 'TURKEY', league: 'Super Lig' },
+    { slug: 'sco.1', country: 'SCOTLAND', league: 'Premiership' },
+    { slug: 'uefa.champions', country: 'EUROPE', league: 'UEFA Champions League' },
+    { slug: 'uefa.europa', country: 'EUROPE', league: 'UEFA Europa League' },
+    { slug: 'usa.1', country: 'USA', league: 'MLS' },
+    { slug: 'mex.1', country: 'MEXICO', league: 'Liga MX' },
+    { slug: 'arg.1', country: 'ARGENTINA', league: 'Liga Profesional' },
+    { slug: 'bra.1', country: 'BRAZIL', league: 'Serie A' },
+    { slug: 'ksa.1', country: 'SAUDI ARABIA', league: 'Pro League' },
+    { slug: 'fifa.friendly', country: 'INTERNATIONAL', league: 'Friendlies' },
+    { slug: 'all', country: 'WORLD', league: 'International Matches' }
   ];
 
   try {
-    // Fetch all league endpoints simultaneously in parallel
-    const requests = globalLeagues.map(slug => 
-      fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${slug}/scoreboard?dates=${targetDate}`)
+    const fetchPromises = leagueList.map(item => 
+      fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${item.slug}/scoreboard?dates=${targetDate}`)
         .then(r => r.ok ? r.json() : null)
+        .then(data => ({ data, meta: item }))
         .catch(() => null)
     );
 
-    const results = await Promise.all(requests);
-
-    // Deduplicate and aggregate matches by event ID
+    const responses = await Promise.all(fetchPromises);
     const matchMap = new Map();
 
-    results.forEach(data => {
-      if (!data || !data.events) return;
+    responses.forEach(resObj => {
+      if (!resObj || !resObj.data || !resObj.data.events) return;
 
-      data.events.forEach(event => {
+      resObj.data.events.forEach(event => {
         if (!matchMap.has(event.id)) {
-          // Normalize structure for frontend rendering
-          const leagueData = data.leagues?.[0] || {};
-          
           matchMap.set(event.id, {
             ...event,
-            league: {
-              id: leagueData.id || 'gen',
-              name: leagueData.name || 'International Football',
-              slug: leagueData.slug || 'all',
-              country: {
-                displayName: leagueData.midsizeName || leagueData.abbreviation || 'WORLD'
-              }
-            }
+            customCountry: resObj.meta.country,
+            customLeague: resObj.meta.league,
+            leagueSlug: resObj.meta.slug
           });
         }
       });
@@ -68,6 +69,6 @@ export default async function handler(req, res) {
     });
 
   } catch (err) {
-    return res.status(500).json({ error: 'Failed to fetch global matches', details: err.message });
+    return res.status(500).json({ error: 'Failed to fetch matches', details: err.message });
   }
 }
