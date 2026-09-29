@@ -1,12 +1,9 @@
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Cache-Control', 's-maxage=30, stale-while-revalidate=15');
+  res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=5');
 
   const { id, league } = req.query;
-
-  if (!id) {
-    return res.status(400).json({ error: 'Match ID required' });
-  }
+  if (!id) return res.status(400).json({ error: 'Match ID required' });
 
   try {
     const leagueSlug = league && league !== 'undefined' ? league : 'all';
@@ -17,55 +14,66 @@ export default async function handler(req, res) {
     }
 
     const data = await response.json();
-
-    const competitors = data.header?.competitions?.[0]?.competitors || [];
-    const homeTeam = competitors.find(c => c.homeAway === 'home') || {};
-    const awayTeam = competitors.find(c => c.homeAway === 'away') || {};
-
-    const homeName = homeTeam.team?.displayName || 'Home Team';
-    const awayName = awayTeam.team?.displayName || 'Away Team';
-
-    const homeSeed = homeName.length;
-    const awaySeed = awayName.length;
-
-    // AI Expected Stats Predictions
-    const xG_Home = (1.15 + (homeSeed % 5) * 0.22).toFixed(2);
-    const xG_Away = (0.85 + (awaySeed % 4) * 0.28).toFixed(2);
-
-    const predictions = {
-      expectedGoals: { home: xG_Home, away: xG_Away },
-      totalExpectedGoals: (parseFloat(xG_Home) + parseFloat(xG_Away)).toFixed(2),
-      expectedCorners: Math.floor(7 + (homeSeed + awaySeed) % 6),
-      expectedYellowCards: (3.2 + (homeSeed % 3) * 0.7).toFixed(1),
-      expectedFouls: Math.floor(19 + (homeSeed + awaySeed) % 8)
+    const competition = data.header?.competitions?.[0] || {};
+    
+    // 1. Extract Real Odds if available
+    const oddsData = competition.odds?.[0] || {};
+    const odds = {
+      homeOdds: oddsData.homeTeamOdds?.summary || oddsData.details || 'N/A',
+      awayOdds: oddsData.awayTeamOdds?.summary || 'N/A',
+      drawOdds: oddsData.drawOdds?.summary || 'N/A'
     };
 
-    // Generated H2H Form Records
-    const h2hMatches = [
-      { date: '2025-11-14', home: homeName, away: awayName, score: '2 - 1', winner: 'home' },
-      { date: '2025-04-20', home: awayName, away: homeName, score: '1 - 1', winner: 'draw' },
-      { date: '2024-12-02', home: homeName, away: awayName, score: '0 - 2', winner: 'away' },
-      { date: '2024-03-15', home: awayName, away: homeName, score: '3 - 2', winner: 'away' },
-      { date: '2023-10-08', home: homeName, away: awayName, score: '1 - 0', winner: 'home' }
-    ];
+    // 2. Extract Real Commentary & Key Events
+    const commentary = (data.commentary || []).map(item => ({
+      time: item.clock?.displayValue || '',
+      text: item.text,
+      isGoal: item.playByPlay?.isGoal || false,
+      isCard: item.playByPlay?.isCard || false
+    }));
 
-    // Generated Standings Table
-    const mockStandings = [
-      { rank: 1, team: homeName, p: 28, w: 18, d: 5, l: 5, pts: 59 },
-      { rank: 2, team: 'League Leaders FC', p: 28, w: 17, d: 6, l: 5, pts: 57 },
-      { rank: 3, team: awayName, p: 28, w: 15, d: 7, l: 6, pts: 52 },
-      { rank: 4, team: 'United City', p: 28, w: 14, d: 6, l: 8, pts: 48 },
-      { rank: 5, team: 'Athletic Club', p: 28, w: 12, d: 8, l: 8, pts: 44 }
-    ];
+    // 3. Extract Real Key Match Events (Goals, Cards, Subs)
+    const keyEvents = (data.keyEvents || []).map(item => ({
+      time: item.clock?.displayValue || '',
+      text: item.shortText || item.text,
+      type: item.type?.text || ''
+    }));
+
+    // 4. Extract Real Live Match Statistics (Possession, Shots, Fouls, Cards)
+    const rawStats = data.boxscore?.teams || [];
+    const matchStats = rawStats.map(t => ({
+      team: t.team?.displayName,
+      stats: t.statistics?.map(s => ({ name: s.label, displayValue: s.displayValue })) || []
+    }));
+
+    // 5. Fetch Full Standings Table dynamically if standard Group Standings exist
+    let fullStandings = [];
+    if (data.standings?.groups) {
+      data.standings.groups.forEach(g => {
+        g.standings?.entries?.forEach((e, idx) => {
+          fullStandings.push({
+            rank: idx + 1,
+            team: e.team?.displayName || 'Team',
+            p: e.stats?.find(s => s.name === 'gamesPlayed')?.value || 0,
+            w: e.stats?.find(s => s.name === 'wins')?.value || 0,
+            d: e.stats?.find(s => s.name === 'ties')?.value || 0,
+            l: e.stats?.find(s => s.name === 'losses')?.value || 0,
+            pts: e.stats?.find(s => s.name === 'points')?.value || 0
+          });
+        });
+      });
+    }
 
     return res.status(200).json({
       ...data,
-      predictions,
-      h2h: h2hMatches,
-      standings: mockStandings
+      odds,
+      commentary,
+      keyEvents,
+      matchStats,
+      standings: fullStandings
     });
-
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
-}
+        }
+  
