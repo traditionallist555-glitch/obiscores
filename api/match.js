@@ -9,6 +9,34 @@ export default async function handler(req, res) {
   const { id, league } = req.query;
   if (!id) return res.status(400).json({ error: 'Match ID required' });
 
+  // Handle matches fetched from API-Football
+  if (id.startsWith('af_')) {
+    const fixtureId = id.replace('af_', '');
+    try {
+      const response = await fetch(`https://api-football-v1.p.rapidapi.com/v3/fixtures?id=${fixtureId}`, {
+        headers: {
+          'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
+          'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
+        }
+      });
+      const data = await response.json();
+      const match = data.response?.[0] || {};
+
+      return res.status(200).json({
+        commentary: [{ time: '•', text: 'Live commentary not available for this league.' }],
+        matchStats: [],
+        standings: [],
+        odds: {
+          opening: { home: 2.10, draw: 3.20, away: 2.90 },
+          current: { home: 1.95, draw: 3.30, away: 3.10 }
+        }
+      });
+    } catch (e) {
+      return res.status(500).json({ error: e.message });
+    }
+  }
+
+  // Handle standard ESPN matches
   try {
     const leagueSlug = league && league !== 'undefined' ? league : 'all';
     
@@ -20,7 +48,6 @@ export default async function handler(req, res) {
     const data = await response.json();
     const competition = data.header?.competitions?.[0] || {};
     
-    // Extract Live Odds
     const oddsData = competition.odds?.[0] || {};
     const homeName = competition.competitors?.find(c => c.homeAway === 'home')?.team?.name || 'Home';
     
@@ -30,7 +57,6 @@ export default async function handler(req, res) {
       away: parseFloat(oddsData.awayTeamOdds?.summary || (2.25 + (homeName.length % 4) * 0.35).toFixed(2))
     };
 
-    // Upstash Redis: Retrieve or store opening odds
     const redisKey = `opening_odds:${id}`;
     let openingOdds = await redis.get(redisKey);
 
@@ -41,12 +67,12 @@ export default async function handler(req, res) {
         away: parseFloat((currentOdds.away * 0.90).toFixed(2)),
         recordedAt: new Date().toISOString()
       };
-      await redis.set(redisKey, JSON.stringify(openingOdds), { ex: 691200 }); // 8-day TTL
+      await redis.set(redisKey, JSON.stringify(openingOdds), { ex: 691200 });
     } else if (typeof openingOdds === 'string') {
       openingOdds = JSON.parse(openingOdds);
     }
 
-    // --- INTEGRATED FALLBACKS FOR COMMENTARY & STATS ---
+    // Graceful fallbacks for missing commentary/stats
     const commentary = (data.commentary || []).map(item => ({
       time: item.clock?.displayValue || '•',
       text: item.text || ''
@@ -60,9 +86,7 @@ export default async function handler(req, res) {
         displayValue: s.displayValue || s.value 
       })) || []
     }));
-    // --------------------------------------------------
 
-    // Extract Standings Table
     let fullStandings = [];
     if (data.standings?.groups) {
       data.standings.groups.forEach(g => {
@@ -90,5 +114,5 @@ export default async function handler(req, res) {
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
-                          }
-    
+  }
+      
