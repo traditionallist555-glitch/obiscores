@@ -6,3 +6,6 @@
     "@upstash/redis": "^1.28.0"
   }
 }
+git add .
+git commit -m "Add Upstash Redis odds tracking for live vs opening odds movement"
+git push origin main
