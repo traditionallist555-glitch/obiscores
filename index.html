@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Obi'score - Live Scores, AI Predictions, H2H & Tables</title>
+  <title>Obi'score - Live Scores, Real Stats & Commentary</title>
+  
+  <!-- Paste your Google AdSense or Adsterra Script here -->
+  <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background: #f1f5f9; color: #0f172a; font-size: 13px; padding-bottom: 70px; }
@@ -11,114 +15,73 @@
     header { background: #ffffff; padding: 10px 14px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; }
     .site-logo { height: 38px; width: auto; object-fit: contain; }
 
-    .ad-top { background: #1e293b; color: #94a3b8; text-align: center; padding: 6px; font-size: 10px; font-weight: bold; }
+    /* MONETIZATION BANNERS */
+    .ad-banner-slot { background: #1e293b; color: #94a3b8; text-align: center; padding: 8px; font-size: 11px; font-weight: bold; width: 100%; min-height: 50px; display: flex; align-items: center; justify-content: center; }
 
     .filter-bar { display: flex; background: #0f172a; }
-    .filter-btn {
-      flex: 1; padding: 10px 0; background: none; border: none; color: #94a3b8;
-      font-size: 11px; font-weight: 700; text-transform: uppercase; cursor: pointer; text-align: center;
-    }
+    .filter-btn { flex: 1; padding: 10px 0; background: none; border: none; color: #94a3b8; font-size: 11px; font-weight: 700; text-transform: uppercase; cursor: pointer; text-align: center; }
     .filter-btn.active { color: #38bdf8; border-bottom: 3px solid #38bdf8; background: #1e293b; }
 
-    .date-nav {
-      display: flex; align-items: center; justify-content: space-between;
-      background: #1e293b; color: #ffffff; padding: 8px 14px;
-    }
-    .date-btn {
-      background: #334155; color: #ffffff; border: none; padding: 5px 12px;
-      border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer;
-    }
-    .date-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .date-nav { display: flex; align-items: center; justify-content: space-between; background: #1e293b; color: #ffffff; padding: 8px 14px; }
+    .date-btn { background: #334155; color: #ffffff; border: none; padding: 5px 12px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; }
     .current-date-display { font-weight: bold; font-size: 12px; color: #38bdf8; text-transform: uppercase; }
 
-    /* FLASHSCORE HIGHLIGHTED LEAGUE BANNER */
-    .league-header {
-      background: #1e293b; color: #ffffff; font-weight: 800; font-size: 11px;
-      padding: 8px 12px; display: flex; align-items: center; justify-content: space-between;
-      margin-top: 6px; border-left: 5px solid #0284c7; text-transform: uppercase; letter-spacing: 0.5px;
-    }
+    /* MANDATORY LEAGUE HEADERS */
+    .league-header { background: #1e293b; color: #ffffff; font-weight: 800; font-size: 11px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; margin-top: 6px; border-left: 5px solid #0284c7; text-transform: uppercase; letter-spacing: 0.5px; }
     .league-header.live-header { background: #991b1b; border-left-color: #fca5a5; }
 
-    .match-row {
-      display: flex; padding: 10px 12px; border-bottom: 1px solid #e2e8f0;
-      align-items: center; background: #ffffff; cursor: pointer; gap: 8px;
-    }
+    .match-row { display: flex; padding: 10px 12px; border-bottom: 1px solid #e2e8f0; align-items: center; background: #ffffff; cursor: pointer; gap: 8px; }
     .match-row:hover { background: #f8fafc; }
     .match-status { width: 55px; color: #64748b; font-size: 11px; font-weight: 700; text-transform: uppercase; }
     .match-status.live { color: #dc2626; font-weight: 800; }
-    .match-status.finished { color: #475569; font-weight: 700; }
     
     .match-teams { flex: 1; color: #0f172a; font-size: 12px; font-weight: 600; display: flex; flex-direction: column; gap: 4px; }
     .team-line { display: flex; align-items: center; gap: 6px; }
-    .team-flag { width: 16px; height: 16px; object-fit: contain; }
     
-    .match-score {
-      font-weight: bold; color: #0f172a; background: #f1f5f9;
-      padding: 5px 10px; border-radius: 4px; min-width: 45px; text-align: center; font-size: 12px;
-    }
+    .match-score { font-weight: bold; color: #0f172a; background: #f1f5f9; padding: 5px 10px; border-radius: 4px; min-width: 45px; text-align: center; font-size: 12px; }
     .match-score.live { color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; }
 
     .odds-box { display: flex; gap: 3px; }
     .odds-val { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 3px; padding: 3px 6px; font-size: 10px; color: #0369a1; font-weight: bold; }
 
     /* MODAL POPUP */
-    .modal-overlay {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(15, 23, 42, 0.8); display: none; align-items: center; justify-content: center; z-index: 10000;
-    }
-    .modal-content {
-      background: #ffffff; border-radius: 10px; width: 94%; max-width: 480px; height: 88vh; max-height: 680px;
-      padding: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); position: relative; display: flex; flex-direction: column;
-    }
-    .modal-close {
-      position: absolute; top: 12px; right: 14px; border: none; background: transparent;
-      font-size: 24px; font-weight: bold; cursor: pointer; color: #94a3b8; z-index: 10;
-    }
-    .modal-header { text-align: center; margin-bottom: 10px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; flex-shrink: 0; }
-    .modal-title { font-size: 11px; font-weight: 800; color: #0284c7; text-transform: uppercase; letter-spacing: 0.5px; }
-    .modal-score { font-size: 26px; font-weight: 800; margin: 3px 0; color: #0f172a; }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.8); display: none; align-items: center; justify-content: center; z-index: 10000; }
+    .modal-content { background: #ffffff; border-radius: 10px; width: 94%; max-width: 480px; height: 88vh; max-height: 680px; padding: 16px; position: relative; display: flex; flex-direction: column; }
+    .modal-close { position: absolute; top: 12px; right: 14px; border: none; background: transparent; font-size: 24px; cursor: pointer; color: #94a3b8; }
+    .modal-header { text-align: center; margin-bottom: 10px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
 
-    /* TAB BAR WITH STANDINGS & H2H */
-    .tab-bar { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 12px; flex-shrink: 0; overflow-x: auto; }
-    .tab-btn {
-      flex: 1; min-width: 70px; padding: 8px 0; text-align: center; background: none; border: none; font-size: 11px;
-      font-weight: 700; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px;
-    }
-    .tab-btn.active { color: #0284c7; border-bottom-color: #0284c7; }
+    .tab-bar { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 12px; overflow-x: auto; }
+    .tab-btn { flex: 1; min-width: 70px; padding: 8px 0; text-align: center; background: none; border: none; font-size: 11px; font-weight: 700; color: #64748b; cursor: pointer; }
+    .tab-btn.active { color: #0284c7; border-bottom: 2px solid #0284c7; }
 
     .modal-body-scroll { flex: 1; overflow-y: auto; font-size: 12px; color: #334155; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0; }
+    .commentary-item { padding: 6px 0; border-bottom: 1px dashed #e2e8f0; }
+    .commentary-time { font-weight: bold; color: #0284c7; margin-right: 6px; }
 
-    /* AI STATS PREDICTIONS CARD */
-    .section-header { font-weight: 800; color: #0f172a; font-size: 11px; text-transform: uppercase; margin: 12px 0 8px 0; border-left: 3px solid #0284c7; padding-left: 6px; }
-    .prediction-card { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px; margin-bottom: 12px; }
-    .pred-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .pred-item { background: #ffffff; padding: 8px; border-radius: 4px; border: 1px solid #e0f2fe; text-align: center; }
-    .pred-val { font-size: 15px; font-weight: 800; color: #0284c7; }
-    .pred-label { font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; }
-
-    /* STANDINGS TABLE */
     .table-view { width: 100%; border-collapse: collapse; font-size: 11px; text-align: center; }
     .table-view th { background: #0f172a; color: #fff; padding: 6px; }
-    .table-view td { padding: 8px 4px; border-bottom: 1px solid #e2e8f0; }
-    .table-view tr.highlight-team { background: #e0f2fe; font-weight: bold; }
+    .table-view td { padding: 6px 4px; border-bottom: 1px solid #e2e8f0; }
 
-    /* STICKY BOTTOM AD */
     .sticky-bottom-ad { position: fixed; bottom: 0; left: 0; right: 0; height: 50px; background: #0f172a; border-top: 1px solid #334155; color: #64748b; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; z-index: 999; }
   </style>
 </head>
 <body>
 
   <header>
-    <a href="/">
-      <img src="1790522014680_2.jpg" alt="Obi'score Logo" class="site-logo">
-    </a>
+    <a href="/"><img src="1790522014680_2.jpg" alt="Obi'score Logo" class="site-logo"></a>
   </header>
 
-  <div class="ad-top">[ TOP MONETIZATION BANNER SLOT ]</div>
+  <!-- TOP AD CONTAINER -->
+  <div class="ad-banner-slot">
+    <!-- Replace this comment with your real Ad code -->
+    <!-- Example AdSense Unit: -->
+    <!-- <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins> -->
+    <!-- <script>(adsbygoogle = window.adsbygoogle || []).push({});</script> -->
+    <span>ADVERTISEMENT BANNER</span>
+  </div>
 
   <div class="filter-bar">
     <button class="filter-btn active" onclick="setFilter('ALL', this)">All</button>
@@ -134,7 +97,7 @@
   </div>
 
   <div id="matches-container">
-    <div style="padding: 20px; text-align: center; color: #64748b;">Loading global matches...</div>
+    <div style="padding: 20px; text-align: center; color: #64748b;">Loading live global matches...</div>
   </div>
 
   <!-- MATCH MODAL -->
@@ -143,52 +106,44 @@
       <button class="modal-close" onclick="closeModal(null)">&times;</button>
       
       <div class="modal-header">
-        <div id="modal-comp" class="modal-title">League</div>
-        <div id="modal-teams" style="font-weight: 700; margin-top: 4px; font-size: 14px;">Home vs Away</div>
-        <div id="modal-score" class="modal-score">0 - 0</div>
+        <div id="modal-comp" style="font-size: 11px; font-weight: 800; color: #0284c7;">League</div>
+        <div id="modal-teams" style="font-weight: 700; font-size: 14px; margin-top: 4px;">Home vs Away</div>
+        <div id="modal-score" style="font-size: 26px; font-weight: 800; margin: 3px 0;">0 - 0</div>
         <div id="modal-status" style="color: #dc2626; font-weight: bold; font-size: 11px;">-</div>
       </div>
 
-      <!-- TABS: OVERVIEW, STATS, H2H, STANDINGS, LINEUPS -->
       <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchTab('tab-overview', this)">Overview</button>
-        <button class="tab-btn" onclick="switchTab('tab-stats', this)">xStats AI</button>
-        <button class="tab-btn" onclick="switchTab('tab-h2h', this)">H2H</button>
+        <button class="tab-btn active" onclick="switchTab('tab-overview', this)">Events</button>
+        <button class="tab-btn" onclick="switchTab('tab-commentary', this)">Commentary</button>
+        <button class="tab-btn" onclick="switchTab('tab-stats', this)">Live Stats</button>
         <button class="tab-btn" onclick="switchTab('tab-standings', this)">Table</button>
-        <button class="tab-btn" onclick="switchTab('tab-lineups', this)">Lineups</button>
       </div>
 
       <div class="modal-body-scroll">
         <div id="tab-overview" class="tab-content active">
-          <div class="detail-row"><span>Venue</span><span id="modal-venue" style="font-weight:600;">-</span></div>
-          <div class="detail-row"><span>Kickoff</span><span id="modal-kickoff" style="font-weight:600;">-</span></div>
-          <div class="section-header">Match Events</div>
-          <div id="overview-events">Loading events...</div>
+          <div id="overview-events">Loading match details...</div>
+        </div>
+
+        <div id="tab-commentary" class="tab-content">
+          <div id="commentary-container">Loading live commentary...</div>
         </div>
 
         <div id="tab-stats" class="tab-content">
-          <div class="section-header">Expected Stats (AI Engine)</div>
-          <div id="predictions-container">Calculating xStats...</div>
-        </div>
-
-        <div id="tab-h2h" class="tab-content">
-          <div class="section-header">Head To Head (Last 5 Direct Encounters)</div>
-          <div id="h2h-container">Loading H2H records...</div>
+          <div id="stats-container">Loading match stats...</div>
         </div>
 
         <div id="tab-standings" class="tab-content">
-          <div class="section-header">League Table</div>
-          <div id="standings-container">Loading standings...</div>
-        </div>
-
-        <div id="tab-lineups" class="tab-content">
-          <div id="lineups-container">Loading lineups...</div>
+          <div id="standings-container">Loading full standings...</div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="sticky-bottom-ad">[ MOBILE STICKY AD BANNER (320x50) ]</div>
+  <!-- BOTTOM STICKY AD BANNER -->
+  <div class="sticky-bottom-ad">
+    <!-- Replace with bottom sticky ad tag -->
+    <span>STICKY AD BANNER (320x50)</span>
+  </div>
 
   <script>
     let globalEvents = [];
@@ -210,13 +165,9 @@
       else if (dayOffset === -1) label.innerText = 'Yesterday';
       else if (dayOffset === 1) label.innerText = 'Tomorrow';
       else label.innerText = targetDate.toLocaleDateString([], { month: 'short', day: 'numeric', weekday: 'short' });
-
-      document.getElementById('prev-day-btn').disabled = (dayOffset <= -7);
-      document.getElementById('next-day-btn').disabled = (dayOffset >= 7);
     }
 
     function changeDate(delta) {
-      if ((dayOffset + delta < -7) || (dayOffset + delta > 7)) return;
       dayOffset += delta;
       updateDateUI();
       loadScores();
@@ -233,21 +184,18 @@
       const container = document.getElementById('matches-container');
       const targetDate = new Date();
       targetDate.setDate(targetDate.getDate() + dayOffset);
-      const apiDateStr = formatDateForAPI(targetDate);
 
       try {
-        const res = await fetch(`/api/scores?date=${apiDateStr}`);
+        const res = await fetch(`/api/scores?date=${formatDateForAPI(targetDate)}`);
         const data = await res.json();
-
         if (!data.events || data.events.length === 0) {
-          container.innerHTML = `<div style="padding: 20px; text-align: center; color: #64748b;">No matches found for this date.</div>`;
+          container.innerHTML = `<div style="padding: 20px; text-align: center;">No matches available for this date.</div>`;
           return;
         }
-
         globalEvents = data.events;
         renderMatches();
       } catch (err) {
-        container.innerHTML = `<div style="padding: 20px; text-align: center; color: #dc2626;">Failed to load match feed.</div>`;
+        container.innerHTML = `<div style="padding: 20px; text-align: center; color: #dc2626;">Error loading live scores.</div>`;
       }
     }
 
@@ -255,13 +203,9 @@
       const container = document.getElementById('matches-container');
       let filtered = globalEvents;
 
-      if (currentFilter === 'LIVE') {
-        filtered = globalEvents.filter(e => e.status?.type?.state === 'in');
-      } else if (currentFilter === 'FINISHED') {
-        filtered = globalEvents.filter(e => e.status?.type?.state === 'post');
-      } else if (currentFilter === 'SCHEDULED') {
-        filtered = globalEvents.filter(e => e.status?.type?.state === 'pre');
-      }
+      if (currentFilter === 'LIVE') filtered = globalEvents.filter(e => e.status?.type?.state === 'in');
+      else if (currentFilter === 'FINISHED') filtered = globalEvents.filter(e => e.status?.type?.state === 'post');
+      else if (currentFilter === 'SCHEDULED') filtered = globalEvents.filter(e => e.status?.type?.state === 'pre');
 
       if (filtered.length === 0) {
         container.innerHTML = `<div style="padding: 20px; text-align: center; color: #64748b;">No ${currentFilter.toLowerCase()} matches.</div>`;
@@ -278,8 +222,9 @@
         if (statusState === 'in' && currentFilter === 'ALL') {
           liveMatches.push(matchData);
         } else {
-          const country = item.customCountry || 'WORLD';
-          const leagueName = item.customLeague || item.league?.name || 'League';
+          // STRICT FALLBACK LOGIC TO PREVENT UNTITLED MATCHES
+          const country = (item.customCountry || item.season?.slug || 'WORLD').toUpperCase();
+          const leagueName = item.customLeague || item.league?.name || item.competitions?.[0]?.type?.text || 'League';
           const titleKey = `${country}: ${leagueName}`;
           
           if (!leagueGroups[titleKey]) leagueGroups[titleKey] = [];
@@ -312,9 +257,6 @@
 
       const homeName = homeTeam?.team?.shortDisplayName || homeTeam?.team?.name || 'Home';
       const awayName = awayTeam?.team?.shortDisplayName || awayTeam?.team?.name || 'Away';
-      const homeLogo = homeTeam?.team?.logo || '';
-      const awayLogo = awayTeam?.team?.logo || '';
-
       const homeScore = homeTeam?.score ?? '-';
       const awayScore = awayTeam?.score ?? '-';
 
@@ -331,7 +273,6 @@
         statusClass = 'live';
         displayTime = statusDetail || 'LIVE';
       } else {
-        statusClass = 'scheduled';
         const kickoff = new Date(m.date);
         displayTime = kickoff.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       }
@@ -344,8 +285,8 @@
         <div class="match-row" onclick="openMatchDetails(${m.originalIndex})">
           <div class="match-status ${statusClass}">${displayTime}</div>
           <div class="match-teams">
-            <div class="team-line">${homeLogo ? `<img src="${homeLogo}" class="team-flag">` : ''} <span>${homeName}</span></div>
-            <div class="team-line">${awayLogo ? `<img src="${awayLogo}" class="team-flag">` : ''} <span>${awayName}</span></div>
+            <div class="team-line"><span>${homeName}</span></div>
+            <div class="team-line"><span>${awayName}</span></div>
           </div>
           <div class="match-score ${statusClass === 'live' ? 'live' : ''}">${homeScore} - ${awayScore}</div>
           <div class="odds-box">
@@ -361,103 +302,47 @@
       const item = globalEvents[index];
       if (!item) return;
 
-      const eventId = item.id;
-      const leagueSlug = item.leagueSlug || 'all';
-      const comp = item.competitions?.[0];
-      const competitors = comp?.competitors || [];
-      const homeTeam = competitors.find(c => c.homeAway === 'home') || competitors[0];
-      const awayTeam = competitors.find(c => c.homeAway === 'away') || competitors[1];
-
-      const compTitle = `${item.customCountry || 'WORLD'}: ${item.customLeague || item.league?.name || 'Match'}`;
-      document.getElementById('modal-comp').innerText = compTitle;
-      document.getElementById('modal-teams').innerText = `${homeTeam?.team?.name} vs ${awayTeam?.team?.name}`;
-      document.getElementById('modal-score').innerText = `${homeTeam?.score ?? '0'} - ${awayTeam?.score ?? '0'}`;
-      document.getElementById('modal-status').innerText = item.status?.type?.description || '-';
-      document.getElementById('modal-venue').innerText = comp?.venue?.fullName || 'N/A';
-
-      if (item.date) {
-        const d = new Date(item.date);
-        document.getElementById('modal-kickoff').innerText = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      }
-
-      document.getElementById('overview-events').innerHTML = `<i>Loading match events...</i>`;
-      document.getElementById('predictions-container').innerHTML = `<i>Calculating AI expected stats...</i>`;
-      document.getElementById('h2h-container').innerHTML = `<i>Loading H2H stats...</i>`;
-      document.getElementById('standings-container').innerHTML = `<i>Loading standings...</i>`;
-      document.getElementById('lineups-container').innerHTML = `<i>Loading lineups...</i>`;
-
+      document.getElementById('modal-teams').innerText = item.name || 'Match Details';
+      document.getElementById('modal-score').innerText = `${item.competitions?.[0]?.competitors?.[0]?.score ?? '0'} - ${item.competitions?.[0]?.competitors?.[1]?.score ?? '0'}`;
       document.getElementById('match-modal').style.display = 'flex';
 
       try {
-        const res = await fetch(`/api/match?id=${eventId}&league=${leagueSlug}`);
+        const res = await fetch(`/api/match?id=${item.id}&league=${item.leagueSlug || 'all'}`);
         const data = await res.json();
-        renderDeepDetails(data, homeTeam?.team?.name, awayTeam?.team?.name);
+
+        // 1. Live Commentary
+        let commHtml = '';
+        (data.commentary || []).forEach(c => {
+          commHtml += `<div class="commentary-item"><span class="commentary-time">${c.time}</span> ${c.text}</div>`;
+        });
+        document.getElementById('commentary-container').innerHTML = commHtml || 'No live commentary logged for this match.';
+
+        // 2. Real Match Statistics
+        let statsHtml = '';
+        (data.matchStats || []).forEach(t => {
+          statsHtml += `<div style="font-weight:bold; margin-top:8px;">${t.team}</div>`;
+          t.stats.forEach(s => {
+            statsHtml += `<div style="display:flex; justify-content:space-between; padding:3px 0;"><span>${s.name}</span><b>${s.displayValue}</b></div>`;
+          });
+        });
+        document.getElementById('stats-container').innerHTML = statsHtml || 'No statistics recorded.';
+
+        // 3. Complete Standings Table
+        let tableHtml = `<table class="table-view"><thead><tr><th>#</th><th style="text-align:left;">Team</th><th>P</th><th>PTS</th></tr></thead><tbody>`;
+        (data.standings || []).forEach(row => {
+          tableHtml += `<tr><td>${row.rank}</td><td style="text-align:left;">${row.team}</td><td>${row.p}</td><td><b>${row.pts}</b></td></tr>`;
+        });
+        tableHtml += '</tbody></table>';
+        document.getElementById('standings-container').innerHTML = data.standings?.length ? tableHtml : 'Standings unavailable for this match.';
+
       } catch (e) {
-        document.getElementById('overview-events').innerHTML = `No details logged.`;
-      }
-    }
-
-    function renderDeepDetails(data, homeName, awayName) {
-      // 1. AI Expected Stats
-      if (data.predictions) {
-        const p = data.predictions;
-        document.getElementById('predictions-container').innerHTML = `
-          <div class="prediction-card">
-            <div class="pred-grid">
-              <div class="pred-item"><div class="pred-val">${p.expectedGoals.home} - ${p.expectedGoals.away}</div><div class="pred-label">Expected Goals (xG)</div></div>
-              <div class="pred-item"><div class="pred-val">~${p.expectedCorners}</div><div class="pred-label">Expected Corners</div></div>
-              <div class="pred-item"><div class="pred-val">~${p.expectedYellowCards}</div><div class="pred-label">Expected Cards</div></div>
-              <div class="pred-item"><div class="pred-val">~${p.expectedFouls}</div><div class="pred-label">Expected Fouls</div></div>
-            </div>
-          </div>
-        `;
-      }
-
-      // 2. H2H Tab
-      if (data.h2h) {
-        let h2hHtml = '';
-        data.h2h.forEach(m => {
-          h2hHtml += `
-            <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f1f5f9; font-size:11px;">
-              <span style="color:#64748b;">${m.date}</span>
-              <span style="font-weight:bold;">${m.home} ${m.score} ${m.away}</span>
-            </div>`;
-        });
-        document.getElementById('h2h-container').innerHTML = h2hHtml;
-      }
-
-      // 3. Standings Table Tab
-      if (data.standings) {
-        let stHtml = `
-          <table class="table-view">
-            <thead>
-              <tr><th>#</th><th style="text-align:left;">Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>PTS</th></tr>
-            </thead>
-            <tbody>`;
-        
-        data.standings.forEach(row => {
-          const isUserMatch = (row.team === homeName || row.team === awayName);
-          stHtml += `
-            <tr class="${isUserMatch ? 'highlight-team' : ''}">
-              <td>${row.rank}</td>
-              <td style="text-align:left;">${row.team}</td>
-              <td>${row.p}</td>
-              <td>${row.w}</td>
-              <td>${row.d}</td>
-              <td>${row.l}</td>
-              <td><b>${row.pts}</b></td>
-            </tr>`;
-        });
-        
-        stHtml += `</tbody></table>`;
-        document.getElementById('standings-container').innerHTML = stHtml;
+        document.getElementById('commentary-container').innerHTML = 'Failed to load details.';
       }
     }
 
     function switchTab(tabId, btn) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-
       btn.classList.add('active');
       document.getElementById(tabId).classList.add('active');
     }
@@ -470,7 +355,8 @@
 
     updateDateUI();
     loadScores();
-    setInterval(loadScores, 60000);
+    setInterval(loadScores, 15000); // 15-second auto refresh
   </script>
 </body>
-</html>
+  </html>
+  
