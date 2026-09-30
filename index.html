@@ -3,360 +3,190 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Obi'score - Live Scores, Real Stats & Commentary</title>
-  
-  <!-- Paste your Google AdSense or Adsterra Script here -->
-  <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
-
+  <title>ObiScore - Live Football Scores & Odds</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: #f1f5f9; color: #0f172a; font-size: 13px; padding-bottom: 70px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: #f4f6f8; color: #1e293b; padding-bottom: 70px; }
+    header { background-color: #0f172a; color: #fff; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; }
+    header h1 { font-size: 1.25rem; font-weight: 700; color: #38bdf8; }
     
-    header { background: #ffffff; padding: 10px 14px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; }
-    .site-logo { height: 38px; width: auto; object-fit: contain; }
+    /* Adsterra Wrapper Styles */
+    .ad-wrapper { width: 100%; display: flex; justify-content: center; align-items: center; margin: 10px 0; overflow: hidden; }
+    .ad-wrapper iframe { max-width: 100% !important; height: auto !important; }
 
-    /* MONETIZATION BANNERS */
-    .ad-banner-slot { background: #1e293b; color: #94a3b8; text-align: center; padding: 8px; font-size: 11px; font-weight: bold; width: 100%; min-height: 50px; display: flex; align-items: center; justify-content: center; }
+    /* Navigation Tabs */
+    .nav-tabs { display: flex; background: #1e293b; border-bottom: 2px solid #334155; }
+    .nav-tabs button { flex: 1; padding: 12px; background: none; border: none; color: #94a3b8; font-weight: 600; cursor: pointer; }
+    .nav-tabs button.active { color: #38bdf8; border-bottom: 3px solid #38bdf8; }
 
-    .filter-bar { display: flex; background: #0f172a; }
-    .filter-btn { flex: 1; padding: 10px 0; background: none; border: none; color: #94a3b8; font-size: 11px; font-weight: 700; text-transform: uppercase; cursor: pointer; text-align: center; }
-    .filter-btn.active { color: #38bdf8; border-bottom: 3px solid #38bdf8; background: #1e293b; }
-
-    .date-nav { display: flex; align-items: center; justify-content: space-between; background: #1e293b; color: #ffffff; padding: 8px 14px; }
-    .date-btn { background: #334155; color: #ffffff; border: none; padding: 5px 12px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; }
-    .current-date-display { font-weight: bold; font-size: 12px; color: #38bdf8; text-transform: uppercase; }
-
-    /* MANDATORY LEAGUE HEADERS */
-    .league-header { background: #1e293b; color: #ffffff; font-weight: 800; font-size: 11px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; margin-top: 6px; border-left: 5px solid #0284c7; text-transform: uppercase; letter-spacing: 0.5px; }
-    .league-header.live-header { background: #991b1b; border-left-color: #fca5a5; }
-
-    .match-row { display: flex; padding: 10px 12px; border-bottom: 1px solid #e2e8f0; align-items: center; background: #ffffff; cursor: pointer; gap: 8px; }
-    .match-row:hover { background: #f8fafc; }
-    .match-status { width: 55px; color: #64748b; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-    .match-status.live { color: #dc2626; font-weight: 800; }
+    /* Match Lists */
+    .league-group { margin-top: 10px; background: #fff; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .league-header { background: #0f172a; color: #fff; padding: 10px 15px; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .league-header img { width: 20px; height: 14px; object-fit: cover; border-radius: 2px; }
     
-    .match-teams { flex: 1; color: #0f172a; font-size: 12px; font-weight: 600; display: flex; flex-direction: column; gap: 4px; }
-    .team-line { display: flex; align-items: center; gap: 6px; }
-    
-    .match-score { font-weight: bold; color: #0f172a; background: #f1f5f9; padding: 5px 10px; border-radius: 4px; min-width: 45px; text-align: center; font-size: 12px; }
-    .match-score.live { color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; }
+    .match-card { display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid #f1f5f9; cursor: pointer; }
+    .match-card:hover { background: #f8fafc; }
+    .match-teams { flex: 1; font-size: 0.9rem; font-weight: 600; }
+    .match-score { font-weight: 700; background: #e2e8f0; padding: 4px 8px; border-radius: 4px; margin: 0 10px; }
+    .match-odds { display: flex; gap: 5px; }
+    .odds-btn { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
 
-    .odds-box { display: flex; gap: 3px; }
-    .odds-val { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 3px; padding: 3px 6px; font-size: 10px; color: #0369a1; font-weight: bold; }
+    /* Modal Styling */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 999; justify-content: center; align-items: center; }
+    .modal-content { background: #fff; width: 90%; max-width: 500px; max-height: 85vh; border-radius: 8px; overflow-y: auto; padding: 20px; position: relative; }
+    .close-btn { position: absolute; top: 10px; right: 15px; font-size: 1.5rem; border: none; background: none; cursor: pointer; }
 
-    /* MODAL POPUP */
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.8); display: none; align-items: center; justify-content: center; z-index: 10000; }
-    .modal-content { background: #ffffff; border-radius: 10px; width: 94%; max-width: 480px; height: 88vh; max-height: 680px; padding: 16px; position: relative; display: flex; flex-direction: column; }
-    .modal-close { position: absolute; top: 12px; right: 14px; border: none; background: transparent; font-size: 24px; cursor: pointer; color: #94a3b8; }
-    .modal-header { text-align: center; margin-bottom: 10px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
-
-    .tab-bar { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 12px; overflow-x: auto; }
-    .tab-btn { flex: 1; min-width: 70px; padding: 8px 0; text-align: center; background: none; border: none; font-size: 11px; font-weight: 700; color: #64748b; cursor: pointer; }
-    .tab-btn.active { color: #0284c7; border-bottom: 2px solid #0284c7; }
-
-    .modal-body-scroll { flex: 1; overflow-y: auto; font-size: 12px; color: #334155; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-
-    .commentary-item { padding: 6px 0; border-bottom: 1px dashed #e2e8f0; }
-    .commentary-time { font-weight: bold; color: #0284c7; margin-right: 6px; }
-
-    .table-view { width: 100%; border-collapse: collapse; font-size: 11px; text-align: center; }
-    .table-view th { background: #0f172a; color: #fff; padding: 6px; }
-    .table-view td { padding: 6px 4px; border-bottom: 1px solid #e2e8f0; }
-
-    .sticky-bottom-ad { position: fixed; bottom: 0; left: 0; right: 0; height: 50px; background: #0f172a; border-top: 1px solid #334155; color: #64748b; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; z-index: 999; }
+    /* Bottom Fixed Sticky Banner */
+    .sticky-bottom-ad { position: fixed; bottom: 0; left: 0; width: 100%; height: 50px; background: #0f172a; display: flex; justify-content: center; align-items: center; z-index: 9999; border-top: 1px solid #334155; }
   </style>
 </head>
 <body>
 
   <header>
-    <a href="/"><img src="1790522014680_2.jpg" alt="Obi'score Logo" class="site-logo"></a>
+    <h1>ObiScore</h1>
   </header>
 
-  <!-- TOP AD CONTAINER -->
-  <div class="ad-banner-slot">
-    <!-- Replace this comment with your real Ad code -->
-    <!-- Example AdSense Unit: -->
-    <!-- <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins> -->
-    <!-- <script>(adsbygoogle = window.adsbygoogle || []).push({});</script> -->
-    <span>ADVERTISEMENT BANNER</span>
+  <!-- TOP ADSTERRA 728x90 BANNER -->
+  <div class="ad-wrapper">
+    <script type="text/javascript">
+      atOptions = {
+        'key' : '3c42401d24526066c62f017385299762',
+        'format' : 'iframe',
+        'height' : 90,
+        'width' : 728,
+        'params' : {}
+      };
+    </script>
+    <script type="text/javascript" src="https://www.highrevenueformat.com/3c42401d24526066c62f017385299762/invoke.js"></script>
   </div>
 
-  <div class="filter-bar">
-    <button class="filter-btn active" onclick="setFilter('ALL', this)">All</button>
-    <button class="filter-btn" onclick="setFilter('LIVE', this)">Live</button>
-    <button class="filter-btn" onclick="setFilter('FINISHED', this)">Finished</button>
-    <button class="filter-btn" onclick="setFilter('SCHEDULED', this)">Scheduled</button>
+  <div class="nav-tabs">
+    <button class="active" onclick="fetchScores('ALL')">ALL</button>
+    <button onclick="fetchScores('LIVE')">LIVE</button>
+    <button onclick="fetchScores('FINISHED')">FINISHED</button>
+    <button onclick="fetchScores('SCHEDULED')">SCHEDULED</button>
   </div>
 
-  <div class="date-nav">
-    <button id="prev-day-btn" class="date-btn" onclick="changeDate(-1)">&laquo; Prev</button>
-    <div id="date-label" class="current-date-display">Today</div>
-    <button id="next-day-btn" class="date-btn" onclick="changeDate(1)">Next &raquo;</button>
-  </div>
+  <main id="matches-container" style="padding: 10px;">
+    <!-- Match fixtures load here -->
+  </main>
 
-  <div id="matches-container">
-    <div style="padding: 20px; text-align: center; color: #64748b;">Loading live global matches...</div>
-  </div>
-
-  <!-- MATCH MODAL -->
-  <div id="match-modal" class="modal-overlay" onclick="closeModal(event)">
-    <div class="modal-content" onclick="event.stopPropagation()">
-      <button class="modal-close" onclick="closeModal(null)">&times;</button>
-      
-      <div class="modal-header">
-        <div id="modal-comp" style="font-size: 11px; font-weight: 800; color: #0284c7;">League</div>
-        <div id="modal-teams" style="font-weight: 700; font-size: 14px; margin-top: 4px;">Home vs Away</div>
-        <div id="modal-score" style="font-size: 26px; font-weight: 800; margin: 3px 0;">0 - 0</div>
-        <div id="modal-status" style="color: #dc2626; font-weight: bold; font-size: 11px;">-</div>
-      </div>
-
-      <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchTab('tab-overview', this)">Events</button>
-        <button class="tab-btn" onclick="switchTab('tab-commentary', this)">Commentary</button>
-        <button class="tab-btn" onclick="switchTab('tab-stats', this)">Live Stats</button>
-        <button class="tab-btn" onclick="switchTab('tab-standings', this)">Table</button>
-      </div>
-
-      <div class="modal-body-scroll">
-        <div id="tab-overview" class="tab-content active">
-          <div id="overview-events">Loading match details...</div>
-        </div>
-
-        <div id="tab-commentary" class="tab-content">
-          <div id="commentary-container">Loading live commentary...</div>
-        </div>
-
-        <div id="tab-stats" class="tab-content">
-          <div id="stats-container">Loading match stats...</div>
-        </div>
-
-        <div id="tab-standings" class="tab-content">
-          <div id="standings-container">Loading full standings...</div>
-        </div>
-      </div>
+  <!-- MATCH DETAIL MODAL -->
+  <div class="modal-overlay" id="match-modal">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal()">&times;</button>
+      <div id="modal-details">Loading details...</div>
     </div>
   </div>
 
-  <!-- BOTTOM STICKY AD BANNER -->
+  <!-- BOTTOM STICKY MOBILE BANNER CONTAINER -->
   <div class="sticky-bottom-ad">
-    <!-- Replace with bottom sticky ad tag -->
-    <span>STICKY AD BANNER (320x50)</span>
+    <!-- Insert additional Adsterra key or banner here -->
   </div>
 
   <script>
-    let globalEvents = [];
-    let dayOffset = 0;
-    let currentFilter = 'ALL';
+    let currentMatches = [];
 
-    function formatDateForAPI(date) {
-      const y = date.getFullYear();
-      const m = String(date.getMonth() + 1).padStart(2, '0');
-      const d = String(date.getDate()).padStart(2, '0');
-      return `${y}${m}${d}`;
-    }
-
-    function updateDateUI() {
-      const targetDate = new Date();
-      targetDate.setDate(targetDate.getDate() + dayOffset);
-      const label = document.getElementById('date-label');
-      if (dayOffset === 0) label.innerText = 'Today';
-      else if (dayOffset === -1) label.innerText = 'Yesterday';
-      else if (dayOffset === 1) label.innerText = 'Tomorrow';
-      else label.innerText = targetDate.toLocaleDateString([], { month: 'short', day: 'numeric', weekday: 'short' });
-    }
-
-    function changeDate(delta) {
-      dayOffset += delta;
-      updateDateUI();
-      loadScores();
-    }
-
-    function setFilter(type, btn) {
-      currentFilter = type;
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      renderMatches();
-    }
-
-    async function loadScores() {
+    async function fetchScores() {
       const container = document.getElementById('matches-container');
-      const targetDate = new Date();
-      targetDate.setDate(targetDate.getDate() + dayOffset);
-
+      container.innerHTML = '<p style="text-align:center; padding:20px;">Loading live scores...</p>';
+      
       try {
-        const res = await fetch(`/api/scores?date=${formatDateForAPI(targetDate)}`);
+        const res = await fetch('/api/scores');
         const data = await res.json();
-        if (!data.events || data.events.length === 0) {
-          container.innerHTML = `<div style="padding: 20px; text-align: center;">No matches available for this date.</div>`;
-          return;
-        }
-        globalEvents = data.events;
-        renderMatches();
+        currentMatches = data.events || [];
+        renderMatches(currentMatches);
       } catch (err) {
-        container.innerHTML = `<div style="padding: 20px; text-align: center; color: #dc2626;">Error loading live scores.</div>`;
+        container.innerHTML = '<p style="text-align:center; padding:20px;">Failed to load scores.</p>';
       }
     }
 
-    function renderMatches() {
+    function renderMatches(events) {
       const container = document.getElementById('matches-container');
-      let filtered = globalEvents;
-
-      if (currentFilter === 'LIVE') filtered = globalEvents.filter(e => e.status?.type?.state === 'in');
-      else if (currentFilter === 'FINISHED') filtered = globalEvents.filter(e => e.status?.type?.state === 'post');
-      else if (currentFilter === 'SCHEDULED') filtered = globalEvents.filter(e => e.status?.type?.state === 'pre');
-
-      if (filtered.length === 0) {
-        container.innerHTML = `<div style="padding: 20px; text-align: center; color: #64748b;">No ${currentFilter.toLowerCase()} matches.</div>`;
+      if (!events || events.length === 0) {
+        container.innerHTML = '<p style="text-align:center; padding:20px;">No matches found.</p>';
         return;
       }
 
-      const liveMatches = [];
-      const leagueGroups = {};
-
-      filtered.forEach((item) => {
-        const statusState = item.status?.type?.state;
-        const matchData = { ...item, originalIndex: globalEvents.indexOf(item) };
-
-        if (statusState === 'in' && currentFilter === 'ALL') {
-          liveMatches.push(matchData);
-        } else {
-          // STRICT FALLBACK LOGIC TO PREVENT UNTITLED MATCHES
-          const country = (item.customCountry || item.season?.slug || 'WORLD').toUpperCase();
-          const leagueName = item.customLeague || item.league?.name || item.competitions?.[0]?.type?.text || 'League';
-          const titleKey = `${country}: ${leagueName}`;
-          
-          if (!leagueGroups[titleKey]) leagueGroups[titleKey] = [];
-          leagueGroups[titleKey].push(matchData);
-        }
+      const grouped = {};
+      events.forEach(e => {
+        const key = e.leagueHeader || 'WORLD: LEAGUE MATCHES';
+        if (!grouped[key]) grouped[key] = { header: key, flag: e.countryFlag, matches: [] };
+        grouped[key].matches.push(e);
       });
 
       let html = '';
-
-      if (liveMatches.length > 0) {
-        html += `<div class="league-header live-header"><span>LIVE MATCHES (${liveMatches.length})</span></div>`;
-        liveMatches.forEach(m => { html += renderMatchRow(m, true); });
+      for (const group in grouped) {
+        html += `
+          <div class="league-group">
+            <div class="league-header">
+              <img src="${grouped[group].flag}" alt="flag" onerror="this.style.display='none'" />
+              <span>${grouped[group].header}</span>
+            </div>
+            ${grouped[group].matches.map(m => {
+              const comp = m.competitions?.[0] || {};
+              const home = comp.competitors?.find(c => c.homeAway === 'home');
+              const away = comp.competitors?.find(c => c.homeAway === 'away');
+              return `
+                <div class="match-card" onclick="openModal('${m.id}')">
+                  <div class="match-teams">
+                    <div>${home?.team?.name || 'Home'}</div>
+                    <div>${away?.team?.name || 'Away'}</div>
+                  </div>
+                  <div class="match-score">
+                    ${home?.score ?? 0} - ${away?.score ?? 0}
+                  </div>
+                  <div class="match-odds">
+                    <span class="odds-btn">${m.odds?.home || '1.85'}</span>
+                    <span class="odds-btn">${m.odds?.draw || '3.20'}</span>
+                    <span class="odds-btn">${m.odds?.away || '2.50'}</span>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
       }
-
-      const sortedLeagues = Object.keys(leagueGroups).sort();
-
-      sortedLeagues.forEach(title => {
-        html += `<div class="league-header"><span>${title}</span></div>`;
-        leagueGroups[title].forEach(m => { html += renderMatchRow(m, false); });
-      });
-
       container.innerHTML = html;
     }
 
-    function renderMatchRow(m, forceLiveStyle) {
-      const comp = m.competitions?.[0];
-      const competitors = comp?.competitors || [];
-      const homeTeam = competitors.find(c => c.homeAway === 'home') || competitors[0];
-      const awayTeam = competitors.find(c => c.homeAway === 'away') || competitors[1];
-
-      const homeName = homeTeam?.team?.shortDisplayName || homeTeam?.team?.name || 'Home';
-      const awayName = awayTeam?.team?.shortDisplayName || awayTeam?.team?.name || 'Away';
-      const homeScore = homeTeam?.score ?? '-';
-      const awayScore = awayTeam?.score ?? '-';
-
-      const statusState = m.status?.type?.state;
-      const statusDetail = m.status?.type?.shortDetail || '';
-      
-      let statusClass = '';
-      let displayTime = '';
-
-      if (statusState === 'post') {
-        statusClass = 'finished';
-        displayTime = 'FT';
-      } else if (statusState === 'in' || forceLiveStyle) {
-        statusClass = 'live';
-        displayTime = statusDetail || 'LIVE';
-      } else {
-        const kickoff = new Date(m.date);
-        displayTime = kickoff.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      }
-
-      const homeOdds = (1.85 + (homeName.length % 4) * 0.25).toFixed(2);
-      const drawOdds = (3.10 + (homeName.length % 3) * 0.2).toFixed(2);
-      const awayOdds = (2.25 + (awayName.length % 4) * 0.35).toFixed(2);
-
-      return `
-        <div class="match-row" onclick="openMatchDetails(${m.originalIndex})">
-          <div class="match-status ${statusClass}">${displayTime}</div>
-          <div class="match-teams">
-            <div class="team-line"><span>${homeName}</span></div>
-            <div class="team-line"><span>${awayName}</span></div>
-          </div>
-          <div class="match-score ${statusClass === 'live' ? 'live' : ''}">${homeScore} - ${awayScore}</div>
-          <div class="odds-box">
-            <span class="odds-val">${homeOdds}</span>
-            <span class="odds-val">${drawOdds}</span>
-            <span class="odds-val">${awayOdds}</span>
-          </div>
-        </div>
-      `;
-    }
-
-    async function openMatchDetails(index) {
-      const item = globalEvents[index];
-      if (!item) return;
-
-      document.getElementById('modal-teams').innerText = item.name || 'Match Details';
-      document.getElementById('modal-score').innerText = `${item.competitions?.[0]?.competitors?.[0]?.score ?? '0'} - ${item.competitions?.[0]?.competitors?.[1]?.score ?? '0'}`;
-      document.getElementById('match-modal').style.display = 'flex';
+    async function openModal(id) {
+      const modal = document.getElementById('match-modal');
+      const details = document.getElementById('modal-details');
+      modal.style.display = 'flex';
+      details.innerHTML = 'Loading match details...';
 
       try {
-        const res = await fetch(`/api/match?id=${item.id}&league=${item.leagueSlug || 'all'}`);
+        const res = await fetch(`/api/match?id=${id}`);
         const data = await res.json();
+        
+        let lineupsHtml = '';
+        if (data.lineups && data.lineups.length > 0) {
+          lineupsHtml = data.lineups.map(l => `
+            <div style="margin-top:10px;">
+              <strong>${l.team} Lineup (${l.formation})</strong>
+              <ul>${(l.startXI || []).map(p => `<li>${p.number ? p.number + '.' : ''} ${p.name}</li>`).join('')}</ul>
+            </div>
+          `).join('');
+        } else {
+          lineupsHtml = '<p>Lineups not announced yet.</p>';
+        }
 
-        // 1. Live Commentary
-        let commHtml = '';
-        (data.commentary || []).forEach(c => {
-          commHtml += `<div class="commentary-item"><span class="commentary-time">${c.time}</span> ${c.text}</div>`;
-        });
-        document.getElementById('commentary-container').innerHTML = commHtml || 'No live commentary logged for this match.';
-
-        // 2. Real Match Statistics
-        let statsHtml = '';
-        (data.matchStats || []).forEach(t => {
-          statsHtml += `<div style="font-weight:bold; margin-top:8px;">${t.team}</div>`;
-          t.stats.forEach(s => {
-            statsHtml += `<div style="display:flex; justify-content:space-between; padding:3px 0;"><span>${s.name}</span><b>${s.displayValue}</b></div>`;
-          });
-        });
-        document.getElementById('stats-container').innerHTML = statsHtml || 'No statistics recorded.';
-
-        // 3. Complete Standings Table
-        let tableHtml = `<table class="table-view"><thead><tr><th>#</th><th style="text-align:left;">Team</th><th>P</th><th>PTS</th></tr></thead><tbody>`;
-        (data.standings || []).forEach(row => {
-          tableHtml += `<tr><td>${row.rank}</td><td style="text-align:left;">${row.team}</td><td>${row.p}</td><td><b>${row.pts}</b></td></tr>`;
-        });
-        tableHtml += '</tbody></table>';
-        document.getElementById('standings-container').innerHTML = data.standings?.length ? tableHtml : 'Standings unavailable for this match.';
-
+        details.innerHTML = `
+          <h3>Match Details</h3>
+          <hr style="margin:10px 0;" />
+          <div>${lineupsHtml}</div>
+        `;
       } catch (e) {
-        document.getElementById('commentary-container').innerHTML = 'Failed to load details.';
+        details.innerHTML = 'Failed to load details.';
       }
     }
 
-    function switchTab(tabId, btn) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById(tabId).classList.add('active');
+    function closeModal() {
+      document.getElementById('match-modal').style.display = 'none';
     }
 
-    function closeModal(event) {
-      if (!event || event.target.id === 'match-modal' || event.target.className === 'modal-close') {
-        document.getElementById('match-modal').style.display = 'none';
-      }
-    }
-
-    updateDateUI();
-    loadScores();
-    setInterval(loadScores, 15000); // 15-second auto refresh
+    fetchScores();
   </script>
 </body>
-  </html>
-  
+</html>
