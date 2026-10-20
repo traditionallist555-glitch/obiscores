@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Teko";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/teko-500.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Teko";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/teko-600.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Outfit";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/outfit-400.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Outfit";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/outfit-500.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Outfit";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/outfit-600.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Outfit";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/outfit-700.ttf") format("truetype");
+}
+
+@theme {
+  --font-display: "Teko", "Arial Narrow", sans-serif;
+  --font-sans: "Outfit", system-ui, sans-serif;
+
+  --color-ink: #09090b;
+  --color-panel: #121214;
+  --color-bone: #f3efe6;
+  --color-ash: #b7b1a6;
+  --color-soot: #4e4a43;
+  --color-signal: #ff2a1f;
+  --color-deep: #9f1d16;
+  --color-line: #2a2a2e;
+  --color-crease: #ddd6c8;
+
+  --radius-sm: 0.125rem;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color-scheme: dark;
+  }
+
+  body {
+    background: var(--color-ink);
+    color: var(--color-bone);
+    font-family: var(--font-sans);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-signal);
+    outline-offset: 2px;
+  }
+
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+  }
+}
